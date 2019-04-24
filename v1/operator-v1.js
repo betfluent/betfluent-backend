@@ -30,7 +30,7 @@ router.post('/create-manager', (req, res) => {
         id: user.managerId,
         name: name || user.name,
         joinTimeMillis: firebase.database.ServerValue.TIMESTAMP,
-        isTraining: true
+        isTraining: false
       }
       if (company) manager.company = company
       await db.updateUser(user.id, user)
