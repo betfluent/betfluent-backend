@@ -23,7 +23,9 @@ const verifyIdToken = function (req, res, next) {
     admin.auth().verifyIdToken(idToken).then(decodedToken => {
       let userId = decodedToken.uid
       req.body.userId = userId
-      if (decodedToken.manager) {
+      if (decodedToken.admin) {
+        req.body.credential = 'ADMIN'
+      } else if (decodedToken.manager) {
         req.body.credential = 'MANAGER'
       } else if (decodedToken.operator) {
         req.body.credential = 'OPERATOR'
