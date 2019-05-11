@@ -1,0 +1,46 @@
+doctype html
+html(lang="en")
+  head
+    link(rel="stylesheet", href="style.css", data-inline)
+  body
+    div.emailBody(style={"width": "100%"})
+
+      div.welcome
+        div.welcomeHeader
+          h1 Welcome to betFluent
+          p Sports betting made easy
+
+        h2 Let's get started
+
+        div.confirmEmail
+          p Click the button below to confirm your email address. This is how we keep you up-to-date with your sports wagers.
+          a(href=`https://www.betfluent.com/account/verify-email#${emailCode}`) Confirm Email
+
+        div.thinDivider
+
+        h2 Next Steps
+
+        div.welcomeContent
+          div.floatLeft
+            img(class="icon" src="https://s3.amazonaws.com/betfluent-email/add-money.png" width="100%" alt="Deposit")
+          div.floatRight
+            h3 Add Money
+            p Add money to your account and start wagering today.
+          div.clear
+
+        div.welcomeContent
+          div.floatLeft
+            img(class="icon" src="https://s3.amazonaws.com/betfluent-email/browse-lobby.png" width="100%" alt="Browse Lobby")
+          div.floatRight
+            h3 Choose a Pool
+            p Explore the lobby and choose a sport themed pool to have some skin in the game.
+          div.clear
+
+
+        div.thinDivider
+
+        div.socialMedia
+          a(href="https://www.instagram.com/betfluent/")
+            img(src="https://s3.amazonaws.com/betfluent-email/insLogo.png" alt="Instagram")
+
+          p Sent from betFluent HQ

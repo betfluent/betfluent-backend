@@ -1,0 +1,45 @@
+doctype html
+html(lang="en")
+  head
+    link(rel="stylesheet", href="style.css", data-inline)
+  body
+    div.emailBody
+      img(class="logo" src="https://s3.amazonaws.com/betfluent-email/MASTER-Blue-Black-Trim.png" width="200" alt="BettorHalf")
+      div.fundInfo
+        b #{fundName}
+        if games
+          span has returned your wager.
+        else
+          span has returned your wager without placing any bets.
+
+      if games
+        div.games
+          each game in games
+            div.game
+              div.gameInfo
+                span.teamNames #{game.awayTeam.name} vs #{game.homeTeam.name}
+                span.teamScores (#{game.awayTeamScore} - #{game.homeTeamScore})
+              div.bets
+                each bet in game.bets
+                  div.bet
+                    div.betInfo
+                      div.betExplanation #{bet.explanation()}
+                      div.betSummary #{bet.summary()}
+                    div.userBetResult(style={"color":`${bet.userBetResultColor}`}) #{bet.userBetResult}
+                    div.clear
+      div.divider
+      div.fundSummary
+        div.userReturn
+          span Returned
+          span.bigNumber(style={"color":`${userReturnColor}`}) #{userReturnAmount}
+        div.userWager
+          span Wagered
+          span.smallNumber #{userWagerAmount}
+        div.userReturnPct
+          span % Change
+          span.smallNumber(style={"color":`${userReturnColor}`}) #{userReturnPct}%
+
+      div.footer
+        span To unsubscribe from these emails,
+        a(href="https://www.betfluent.com")  log on
+        span and update the Notification settings on your Account.

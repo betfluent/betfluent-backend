@@ -1,0 +1,52 @@
+doctype html
+html(lang="en")
+  head
+    link(rel="stylesheet", href="style.css", data-inline)
+  body
+    div.emailBody
+      img(class="logo" src="https://s3.amazonaws.com/betfluent-email/MASTER-Blue-Black-Trim.png" width="200" alt="betFluent")
+      div.fundInfo
+        b #{fundName}
+        span has placed a bet.
+
+      div.teamNames #{game.awayTeam.name} vs #{game.homeTeam.name}
+      div.broadcast
+        div.floatLeft Watch on: #{game.broadcastNetwork}
+        div.floatRight #{gameTime}
+        div.clear
+
+      div.betPlacedSummary #{bet.summary()}
+
+      div.betStats
+        div.atStake
+          div.floatLeft
+            div AT STAKE
+            div Amount you bet
+          div.floatRight #{formattedAtStake}
+          div.clear
+        div.couldWin
+          div.floatLeft
+            div COULD WIN
+            div Amount this bet returns
+          div.floatRight #{formattedCouldWin}
+          div.clear
+        div.couldProfit
+          div.floatLeft COULD PROFIT
+          div.floatRight #{formattedProfit}
+          div.clear
+
+      div.toWin
+        div TO WIN
+        div #{bet.explanation()} This is known as a
+          span #{betType}
+          span bet.
+
+      div.btb
+        div ON THE GO?
+        div Follow
+          a(href=`https://www.betfluent.com/pools/${fundId}/${game.id}`) Live
+
+      div.footer
+        span To unsubscribe from these emails,
+        a(href="https://www.betfluent.com")  log on
+        span and update the Notification settings on your Account.
