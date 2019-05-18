@@ -103,7 +103,7 @@ router.use(logRequest)
 
 router.use(determineIpAddress)
 
-router.use(unless(['/*/callback', '/public/*'], verifyIdToken))
+router.use(unless(['/*/callback', '/public/*', '/profile/*'], verifyIdToken))
 
 router.post('*', unless(['/*/callback', '/public/*', '/*/avatar'], validateSession))
 
