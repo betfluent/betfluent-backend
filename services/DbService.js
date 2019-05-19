@@ -1117,7 +1117,7 @@ const transactUserWager = function(userId, fundId, wager) {
           userBalance: currencyFormatter.format(user.balance / 100),
           public: true
         }
-        return updateFundAfterUserWager(fundId, amount, firstWager, interaction, fade)
+        return updateFundAfterUserWager(fundId, amount, firstWager, interaction, 0, fade)
       } else {
         result.userId = userId
         result.amount = amount
