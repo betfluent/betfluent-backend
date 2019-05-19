@@ -6,7 +6,9 @@ module.exports = class Fund {
       balance,
       closedTimeMillis,
       closingTime,
+      counterBalance,
       createdTimeMillis,
+      fadePlayerCount,
       games,
       id,
       isTraining,
@@ -36,7 +38,9 @@ module.exports = class Fund {
     this.balance = balance;
     this.closedTimeMillis = closedTimeMillis;
     this.closingTime = closingTime;
+    this.counterBalance = counterBalance;
     this.createdTimeMillis = createdTimeMillis;
+    this.fadePlayerCount = fadePlayerCount;
     this.games = games;
     this.id = id;
     if (isTraining) this.isTraining = isTraining;

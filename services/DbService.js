@@ -1186,7 +1186,8 @@ function updateFundAfterUserWager(
           amount,
           firstWager,
           pendingInteraction,
-          ++attempts
+          ++attempts,
+          fade
         )
       }
     })
