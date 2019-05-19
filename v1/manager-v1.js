@@ -37,7 +37,7 @@ router.post('/avatar', async function (req, res) {
 
 router.post('/bet', async function (req, res) {
   const session = req.body
-  const bet = new Bet(Object.assign({}, session.request, session.request.line))
+  const bet = new Bet(Object.assign({}, session.request, session.request.line, { fade: false }))
   const fade = new Bet(Object.assign({}, session.request, session.request.fade, { fade: true }))
 
   if (!(bet.wagered || bet.pctOfFund)) {
