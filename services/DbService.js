@@ -1142,6 +1142,9 @@ function updateFundAfterUserWager(
         if (fund) {
           if (fade) {
             fund.counterBalance = fund.counterBalance ? fund.counterBalance + amount : amount
+            fund.fadeAmountWagered = fund.fadeAmountWagered
+              ? fund.fadeAmountWagered + amount
+              : amount
             if (firstWager) { fund.fadePlayerCount = fund.fadePlayerCount ? fund.fadePlayerCount + 1 : 1 }
           } else {
             fund.balance = fund.balance ? fund.balance + amount : amount
@@ -1407,7 +1410,8 @@ const transactFundBet = bet => {
         if (fund) {
           if (!bet.wagered) {
             const pctOfFund = bet.pctOfFund || 0
-            bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
+            if (bet.fade) bet.wagered = Math.floor(fund.fadeAmountWagered * pctOfFund / 100)
+            else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
           }
           if (bet.wagered <= 0) return
 
