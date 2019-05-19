@@ -23,7 +23,7 @@ const validateWager = function (wager, user, fund) {
   // Calculate total amount wagered if this is successful
   let totalWagerAmount = wager.amount
   if (user.investments && user.investments[fund.id]) {
-    totalWagerAmount += user.investments[fund.id]
+    totalWagerAmount += Math.abs(user.investments[fund.id])
   }
   // Check to see if total wager is more than minimum
   if (totalWagerAmount < fund.minInvestment) {
