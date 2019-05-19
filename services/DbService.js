@@ -1417,7 +1417,6 @@ const transactFundBet = bet => {
           if (bet.wagered <= 0) return
 
           if (bet.fade) {
-            console.log(fund.counterBalance, bet.wagered)
             fund.counterBalance -= bet.wagered
             if (fund.counterBalance < 0) return
             if (!fund.fadeWagers) fund.fadeWagers = {}
