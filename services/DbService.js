@@ -1413,6 +1413,9 @@ const transactFundBet = bet => {
             if (bet.fade) bet.wagered = Math.floor(fund.fadeAmountWagered * pctOfFund / 100) // separate balance
             else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
           }
+
+          console.log(bet.wagered)
+
           if (bet.wagered <= 0) return
 
           if (bet.fade) {
