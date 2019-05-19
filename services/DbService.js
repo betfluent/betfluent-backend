@@ -1414,12 +1414,11 @@ const transactFundBet = bet => {
             else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
           }
 
-          console.log(bet.wagered)
-
           if (bet.wagered <= 0) return
 
           if (bet.fade) {
             fund.counterBalance -= bet.wagered
+            console.log(fund.counterBalance)
             if (fund.counterBalance < 0) return
             if (!fund.fadeWagers) fund.fadeWagers = {}
             fund.fadeWagers[bet.id] = bet.wagered
