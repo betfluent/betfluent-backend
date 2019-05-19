@@ -1067,7 +1067,9 @@ const withdrawFromUserBalance = function(userId, amount, isPending) {
     )
 }
 
-const transactUserWager = function(userId, fundId, amount) {
+const transactUserWager = function(userId, fundId, wager) {
+  const { amount, fade } = wager
+  const multiplier = fade ? -1 : 1
   let firstWager
   return db
     .ref('users')
@@ -1084,10 +1086,10 @@ const transactUserWager = function(userId, fundId, amount) {
 
           if (user.investments[fundId]) {
             firstWager = false
-            user.investments[fundId] += amount
+            user.investments[fundId] += amount * multiplier
           } else {
             firstWager = true
-            user.investments[fundId] = amount
+            user.investments[fundId] = amount * multiplier
           }
         }
         return user
@@ -1109,13 +1111,13 @@ const transactUserWager = function(userId, fundId, amount) {
         let interaction = {
           time: firebase.database.ServerValue.TIMESTAMP,
           amount: amount,
-          type: 'Wager',
+          type: fade ? 'Wager Against' : 'Wager',
           userId: publicUser.id,
           userName: publicUser.name,
           userBalance: currencyFormatter.format(user.balance / 100),
           public: true
         }
-        return updateFundAfterUserWager(fundId, amount, firstWager, interaction)
+        return updateFundAfterUserWager(fundId, amount, firstWager, interaction, fade)
       } else {
         result.userId = userId
         result.amount = amount
@@ -1129,7 +1131,8 @@ function updateFundAfterUserWager(
   amount,
   firstWager,
   pendingInteraction,
-  attempts = 0
+  attempts = 0,
+  fade
 ) {
   return db
     .ref('funds')
@@ -1137,11 +1140,16 @@ function updateFundAfterUserWager(
     .transaction(
       fund => {
         if (fund) {
-          fund.balance = fund.balance ? fund.balance + amount : amount
-          fund.amountWagered = fund.amountWagered
-            ? fund.amountWagered + amount
-            : amount
-          if (firstWager) { fund.playerCount = fund.playerCount ? fund.playerCount + 1 : 1 }
+          if (fade) {
+            fund.counterBalance = fund.counterBalance ? fund.counterBalance + amount : amount
+            if (firstWager) { fund.fadePlayerCount = fund.fadePlayerCount ? fund.fadePlayerCount + 1 : 1 }
+          } else {
+            fund.balance = fund.balance ? fund.balance + amount : amount
+            fund.amountWagered = fund.amountWagered
+              ? fund.amountWagered + amount
+              : amount
+              if (firstWager) { fund.playerCount = fund.playerCount ? fund.playerCount + 1 : 1 }
+          }       
         }
         return fund
       },
@@ -1155,9 +1163,15 @@ function updateFundAfterUserWager(
           let fund = snapshot.val()
           pendingInteraction.fundId = fundId
           pendingInteraction.fundName = fund.name
-          pendingInteraction.fundBalance = currencyFormatter.format(
-            fund.balance / 100
-          )
+          if (fade) {
+            pendingInteraction.fundCounterBalance = currencyFormatter.format(
+              fund.counterBalance
+            )
+          } else {
+            pendingInteraction.fundBalance = currencyFormatter.format(
+              fund.balance / 100
+            )
+          }
           saveInteraction(pendingInteraction)
         }
       }
@@ -1396,11 +1410,17 @@ const transactFundBet = bet => {
           }
           if (bet.wagered <= 0) return
 
-          fund.balance -= bet.wagered
-          if (fund.balance < 0) return
-
-          if (!fund.wagers) fund.wagers = {}
-          fund.wagers[bet.id] = bet.wagered
+          if (bet.fade) {
+            fund.counterBalance -= bet.wagered
+            if (fund.counterBalance < 0) return
+            if (!fund.fadeWagers) fund.fadeWagers = {}
+            fund.fadeWagers[bet.id] = bet.wagered
+          } else {
+            fund.balance -= bet.wagered
+            if (fund.balance < 0) return
+            if (!fund.wagers) fund.wagers = {}
+            fund.wagers[bet.id] = bet.wagered
+          }
 
           if (!fund.games) fund.games = {}
           if (!fund.games[bet.gameId]) fund.games[bet.gameId] = bet.gameLeague
@@ -1436,8 +1456,10 @@ const transactFundBet = bet => {
         bet.liveTimeMillis = firebase.database.ServerValue.TIMESTAMP
         bet.status = 'LIVE'
         return saveBet(bet).then(() => {
-          saveInteraction(interaction)
-          updateUserBetStatsAfterPlacing(fund.managerId, bet)
+          if (!bet.fade) {
+            saveInteraction(interaction)
+            updateUserBetStatsAfterPlacing(fund.managerId, bet)
+          }
           db
             .ref(bet.gameLeague.toLowerCase())
             .child('live')

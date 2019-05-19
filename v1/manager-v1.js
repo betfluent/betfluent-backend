@@ -37,7 +37,8 @@ router.post('/avatar', async function (req, res) {
 
 router.post('/bet', async function (req, res) {
   const session = req.body
-  const bet = new Bet(session.request)
+  const bet = new Bet(Object.assign({}, session.request, session.request.line))
+  const fade = new Bet(Object.assign({}, session.request, session.request.fade, { fade: true }))
 
   if (!(bet.wagered || bet.pctOfFund)) {
     return res.send({
@@ -50,6 +51,7 @@ router.post('/bet', async function (req, res) {
   switch (bet.status) {
     case 'LIVE':
       manager.placeFundBet(bet)
+        .then(() => db.placeFundBet(fade))
         .then(result => res.send(result))
         .catch(err => {
           res.send({
@@ -61,6 +63,7 @@ router.post('/bet', async function (req, res) {
       break
     case 'STAGED':
       db.saveBet(bet)
+        .then(() => db.saveBet(fade))
         .then(() => res.send({
           status: 'success',
           data: bet,
@@ -73,6 +76,7 @@ router.post('/bet', async function (req, res) {
           })
           console.log('ERROR', err)
         })
+        
       break
     case 'RETURNED': break
   }

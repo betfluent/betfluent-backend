@@ -20,7 +20,7 @@ router.post('/wager', async function (req, res) {
 
   const results = validator.validateWager(wager, user, fund)
   if (results.status === 'success') {
-    db.transactUserWager(user.id, fund.id, wager.amount)
+    db.transactUserWager(user.id, fund.id, wager)
       .then(result => {
         if (!result.committed) {
           let response = {

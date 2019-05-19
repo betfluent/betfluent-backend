@@ -21,7 +21,8 @@ module.exports = class Bet {
     selectionId,
     status,
     type,
-    wagered
+    wagered,
+    fade
   }) {
     this.agreeCount = agreeCount;
     this.createdTimeMillis = createdTimeMillis;
@@ -45,6 +46,7 @@ module.exports = class Bet {
     this.status = status;
     this.type = type;
     if (wagered) this.wagered = wagered;
+    this.fade = fade;
   }
 
   /**
