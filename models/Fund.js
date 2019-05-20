@@ -11,6 +11,7 @@ module.exports = class Fund {
       fadeAmountWagered,
       fadePlayerCount,
       fadeResults,
+      fadeReturnCount,
       fadeReturned = -1,
       fadeWagers,
       games,
@@ -47,6 +48,7 @@ module.exports = class Fund {
     this.fadeAmountWagered = fadeAmountWagered;
     this.fadePlayerCount = fadePlayerCount;
     this.fadeResults = fadeResults;
+    this.fadeReturnCount = fadeReturnCount;
     this.fadeReturned = fadeReturned;
     this.fadeWagers = fadeWagers;
     this.games = games;
