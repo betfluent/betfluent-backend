@@ -11,7 +11,7 @@ module.exports = class Fund {
       fadeAmountWagered,
       fadePlayerCount,
       fadeResults,
-      fadeReturned,
+      fadeReturned = -1,
       fadeWagers,
       games,
       id,
@@ -78,8 +78,10 @@ module.exports = class Fund {
    */
   hasPendingBets() {
     const betCount = this.wagers ? Object.keys(this.wagers).length : 0;
+    const fadeCount = this.fadeWagers ? Object.keys(this.wagers).length: 0;
     const resultCount = this.results ? Object.keys(this.results).length : 0;
-    return betCount !== resultCount;
+    const fadeResultCount = this.fadeResults ? Object.keys(this.fadeResults) : 0;
+    return betCount !== resultCount && fadeCount !== fadeResultCount;
   }
 
   /**
@@ -124,6 +126,13 @@ module.exports = class Fund {
    * @return {number} Amount in cents that will be allocated to the User upon fund return
    */
   userReturn(userWager) {
+    if (userWager < 0) {
+      this.amountWagered = this.fadeAmountWagered;
+      this.balance = this.counterBalance;
+      this.wagers = this.fadeWagers;
+      this.results = this.fadeResults;
+      this.amountReturned = this.fadeReturned;
+    }
     const value = this.absValue();
     if (value === 0) return 0;
     if (value === this.amountWagered) return userWager;

@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const firebase = require('../firebase')
 const db = firebase.database()
 const Fund = require('../models/Fund')
@@ -469,7 +470,6 @@ const getUsersInFund = async fundId => {
   const snapshot = await db
     .ref('users')
     .orderByChild(`investments/${fundId}`)
-    .startAt(0)
     .once('value')
   if (snapshot.exists() && snapshot.hasChildren()) {
     const usersMap = snapshot.val()
@@ -1203,9 +1203,9 @@ function transactUserReturn(userId, fundId, amount) {
     .transaction(
       user => {
         if (user) {
-          if (amount < 0) return // Abort if amount is less than zero to avoid unexpected behavior
+          // if (amount < 0) return // Abort if amount is less than zero to avoid unexpected behavior
 
-          user.balance = user.balance ? user.balance + amount : amount
+          user.balance = user.balance ? user.balance + Math.abs(amount) : Math.abs(amount)
 
           if (!user.returns) user.returns = {}
 
@@ -1233,7 +1233,7 @@ function transactUserReturn(userId, fundId, amount) {
         let publicUser = await getPublicUser(user.publicId)
         let interaction = {
           time: firebase.database.ServerValue.TIMESTAMP,
-          amount: amount,
+          amount: Math.abs(amount),
           type: 'Return',
           userId: publicUser.id,
           userName: publicUser.name,
@@ -1263,12 +1263,20 @@ function updateFundAfterUserReturn(
     .transaction(
       fund => {
         if (fund) {
-          fund.balance = fund.balance ? fund.balance - amount : -amount
-          fund.amountReturned = fund.amountReturned
-            ? fund.amountReturned + amount
-            : amount
-          fund.returnCount = fund.returnCount ? fund.returnCount + 1 : 1
-          if (fund.returnCount === fund.playerCount) {
+          if (amount > 0) {
+            fund.balance = fund.balance ? fund.balance - amount : -amount
+            fund.amountReturned = fund.amountReturned
+              ? fund.amountReturned + amount
+              : amount
+            fund.returnCount = fund.returnCount ? fund.returnCount + 1 : 1
+          } else {
+            fund.counterBalance = fund.counterBalance ? fund.counterBalance + amount : amount
+            fund.fadeReturned = fund.fadeReturned
+              ? fund.fadeReturned - amount
+              : -amount
+            fund.fadeReturnCount = fade.returnCount ? fade.returnCount + 1 : 1
+          }
+          if (fund.returnCount === fund.playerCount && fund.fadeReturnCount === fund.fadePlayerCount) {
             fund.returnTimeMillis = firebase.database.ServerValue.TIMESTAMP
             fund.status = 'RETURNED'
             delete fund.isReturning
@@ -1354,8 +1362,10 @@ const returnFund = async fundId => {
   const returns = []
   const users = await getUsersInFund(fundId)
   users.forEach(user => {
+    const fundClone = _.cloneDeep(setReturning.snapshot.val())
+    const userFund = new Fund(fundClone)
     if (user.returns && user.returns[fundId]) return
-    const amount = fund.userReturn(user.investments[fundId])
+    const amount = userFund.userReturn(user.investments[fundId])
     const userReturn = transactUserReturn(user.id, fundId, amount)
     returns.push(userReturn)
   })
@@ -1555,9 +1565,15 @@ const transactFundBetResult = async betId => {
     .child(bet.fundId)
     .transaction(fund => {
       if (fund) {
-        fund.balance += resultAmount
-        if (!fund.results) fund.results = {}
-        fund.results[bet.id] = resultAmount
+        if (bet.fade) {
+          fund.counterBalance += resultAmount
+          if (!fund.fadeResults) fund.fadeResults = {}
+          fund.fadeResults[bet.id] = resultAmount
+        } else {
+          fund.balance += resultAmount
+          if (!fund.results) fund.results = {}
+          fund.results[bet.id] = resultAmount
+        }
       }
       return fund
     })
@@ -1592,11 +1608,12 @@ const transactFundBetResult = async betId => {
     gameLeague: bet.gameLeague
   }
 
-  saveInteraction(interaction)
+  if (!bet.fade) saveInteraction(interaction)
+
   return saveBet(bet).then(() => {
     console.log(`\n---------- ${interactionType}:`, bet)
 
-    updateUserBetStatsAfterResult(fund.managerId, bet, game)
+    if (!bet.fade) updateUserBetStatsAfterResult(fund.managerId, bet, game)
     getPublicUsersWhoPredictedBet(betId).then(publicUsers => {
       for (const publicUser of publicUsers) {
         transactPredictionOutcome(publicUser.id, bet, game)
