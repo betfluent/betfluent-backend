@@ -20,6 +20,8 @@ const watchOpenFunds = () => {
       if (result.committed) {
         const closedFund = result.snapshot.val()
       }
+    } else {
+      manager.scheduleFundClosing(fund.id, fund.closingTime * 1000)
     }
   })
 }
