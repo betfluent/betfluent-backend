@@ -1168,7 +1168,7 @@ function updateFundAfterUserWager(
           pendingInteraction.fundName = fund.name
           if (fade) {
             pendingInteraction.fundCounterBalance = currencyFormatter.format(
-              fund.counterBalance
+              fund.counterBalance / 100
             )
           } else {
             pendingInteraction.fundBalance = currencyFormatter.format(
