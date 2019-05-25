@@ -1,7 +1,7 @@
 module.exports = class Fund {
   constructor(
     {
-      amountReturned = -1,
+      amountReturned = 0,
       amountWagered = 0,
       balance,
       closedTimeMillis,
@@ -12,7 +12,7 @@ module.exports = class Fund {
       fadePlayerCount,
       fadeResults,
       fadeReturnCount,
-      fadeReturned = -1,
+      fadeReturned = 0,
       fadeWagers,
       games,
       id,
