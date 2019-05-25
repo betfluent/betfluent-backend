@@ -1361,6 +1361,7 @@ const returnFund = async fundId => {
 
   const returns = []
   const users = await getUsersInFund(fundId)
+  console.log(users)
   users.forEach(user => {
     const fundClone = _.cloneDeep(setReturning.snapshot.val())
     const userFund = new Fund(fundClone)
