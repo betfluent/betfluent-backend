@@ -1197,7 +1197,7 @@ function updateFundAfterUserWager(
     })
 }
 
-function transactUserReturn(userId, fundId, amount) {
+function transactUserReturn(userId, fundId, amount, fade) {
   return db
     .ref('users')
     .child(userId)
@@ -1241,7 +1241,7 @@ function transactUserReturn(userId, fundId, amount) {
           userBalance: currencyFormatter.format(user.balance / 100),
           public: true
         }
-        return updateFundAfterUserReturn(userId, fundId, amount, interaction)
+        return updateFundAfterUserReturn(userId, fundId, amount, interaction, 0, fade)
       } else {
         result.status = 'fail'
         result.userId = userId
@@ -1256,7 +1256,8 @@ function updateFundAfterUserReturn(
   fundId,
   amount,
   pendingInteraction,
-  attempts = 0
+  attempts = 0,
+  fade
 ) {
   return db
     .ref('funds')
@@ -1264,7 +1265,7 @@ function updateFundAfterUserReturn(
     .transaction(
       fund => {
         if (fund) {
-          if (amount > 0) {
+          if (!fade) {
             fund.balance = fund.balance ? fund.balance - amount : -amount
             fund.amountReturned = fund.amountReturned
               ? fund.amountReturned + amount
@@ -1367,7 +1368,7 @@ const returnFund = async fundId => {
     const userFund = new Fund(fundClone)
     if (user.returns && user.returns[fundId]) return
     const amount = userFund.userReturn(user.investments[fundId])
-    const userReturn = transactUserReturn(user.id, fundId, amount)
+    const userReturn = transactUserReturn(user.id, fundId, amount, user.investments[fundId] < 0)
     returns.push(userReturn)
   })
 
