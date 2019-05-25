@@ -470,6 +470,7 @@ const getUsersInFund = async fundId => {
   const snapshot = await db
     .ref('users')
     .orderByChild(`investments/${fundId}`)
+    .startAt(Number.MIN_SAFE_INTEGER)
     .once('value')
   if (snapshot.exists() && snapshot.hasChildren()) {
     const usersMap = snapshot.val()
