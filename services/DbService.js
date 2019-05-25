@@ -1335,7 +1335,7 @@ const returnFund = async fundId => {
         ) {
           return
         }
-        if (fund.playerCount === 0 || fund.fadePlayerCount === 0) {
+        if (fund.playerCount === 0 && fund.fadePlayerCount === 0) {
           fund.status = 'RETURNED'
         } else {
           fund.isReturning = true
