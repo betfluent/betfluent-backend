@@ -944,7 +944,7 @@ const closeFund = fundId => {
       if (fund) {
         if (fund.status !== 'OPEN') return // only OPEN funds may be closed
         if (fund.open) fund.open = false
-        if (fund.balance > 0) {
+        if (fund.balance > 0 || fund.counterBalance > 0) {
           fund.status = 'PENDING'
         } else fund.status = 'RETURNED'
       }
