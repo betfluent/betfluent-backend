@@ -1314,7 +1314,8 @@ function updateFundAfterUserReturn(
           fundId,
           amount,
           pendingInteraction,
-          ++attempts
+          ++attempts,
+          fade
         )
       }
     })
