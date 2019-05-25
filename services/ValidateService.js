@@ -20,6 +20,14 @@ const validateWager = function (wager, user, fund) {
       message: 'You do not have the available balance to cover the wager'
     }
   }
+
+  if (user.investments && user.investments[fund.id] * (wager.fade ? -1 : 1) < 0) {
+    response = {
+      status: 'error',
+      message: 'Cannot bet both for and against same fund'
+    }
+  }
+
   // Calculate total amount wagered if this is successful
   let totalWagerAmount = wager.amount
   if (user.investments && user.investments[fund.id]) {
@@ -40,7 +48,7 @@ const validateWager = function (wager, user, fund) {
     }
   }
   // Check to see if wager will exceed maxBalance for the fund
-  if (fund.balance + wager.amount > fund.maxBalance) {
+  if (fund.balance + fund.counterBalance + wager.amount > fund.maxBalance) {
     response = {
       status: 'fail',
       message: 'Wager exceeds max balance for the fund'
