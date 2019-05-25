@@ -1275,7 +1275,7 @@ function updateFundAfterUserReturn(
             fund.fadeReturned = fund.fadeReturned
               ? fund.fadeReturned - amount
               : -amount
-            fund.fadeReturnCount = fade.returnCount ? fade.returnCount + 1 : 1
+            fund.fadeReturnCount = fund.fadeReturnCount ? fund.fadeReturnCount + 1 : 1
           }
           if (fund.returnCount === fund.playerCount && fund.fadeReturnCount === fund.fadePlayerCount) {
             fund.returnTimeMillis = firebase.database.ServerValue.TIMESTAMP
@@ -1362,7 +1362,6 @@ const returnFund = async fundId => {
 
   const returns = []
   const users = await getUsersInFund(fundId)
-  console.log(users)
   users.forEach(user => {
     const fundClone = _.cloneDeep(setReturning.snapshot.val())
     const userFund = new Fund(fundClone)
