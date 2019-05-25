@@ -24,7 +24,7 @@ const validateWager = function (wager, user, fund) {
   if (user.investments && user.investments[fund.id] * (wager.fade ? -1 : 1) < 0) {
     response = {
       status: 'error',
-      message: 'Cannot bet both for and against same fund'
+      message: 'Cannot wager both for and against same pool'
     }
   }
 
@@ -51,7 +51,7 @@ const validateWager = function (wager, user, fund) {
   if (fund.balance + fund.counterBalance + wager.amount > fund.maxBalance) {
     response = {
       status: 'fail',
-      message: 'Wager exceeds max balance for the fund'
+      message: 'Wager exceeds max balance for the pool'
     }
   }
   console.log('Validate Wager response: ', response)
