@@ -119,8 +119,6 @@ router.use('/manager', require('./manager-v1'))
 
 router.use('/bet', require('./bet-v1'))
 
-router.use('/operator', ensureIsOperator)
-
 router.use('/operator', require('./operator-v1'))
 
 router.use('/funds', require('./funds-v1'))
