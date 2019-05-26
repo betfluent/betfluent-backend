@@ -48,7 +48,7 @@ const validateWager = function (wager, user, fund) {
     }
   }
   // Check to see if wager will exceed maxBalance for the fund
-  if (fund.balance + fund.counterBalance + wager.amount > fund.maxBalance) {
+  if ((fund.balance + wager.amount > fund.maxBalance) || (wager.fade && (fund.counterBalance + wager.amount > fund.maxBalance))) {
     response = {
       status: 'fail',
       message: 'Wager exceeds max balance for the pool'
