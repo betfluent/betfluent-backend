@@ -107,7 +107,7 @@ const BASE_URL = 'http://api.ipstack.com/'
 // })
 
 // define the player location route
-router.get('/location', async (req, res) => {
+router.post('/location', async (req, res) => {
   const session = req.body
   const ip = session.ipAddress
 
