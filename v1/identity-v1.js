@@ -115,12 +115,14 @@ router.post('/location', async (req, res) => {
     url: `${BASE_URL}${ip}?access_key=${process.env.IP_STACK_KEY}`
   })
 
+  const data = JSON.parse(response)
+
   const snapshot = await firebase.database().ref('legalStates').once('value')
 
   const legalStates = snapshot.val()
 
-  const country = response['country_code']
-  const state = response['region_code']
+  const country = data['country_code']
+  const state = data['region_code']
 
   console.log(country, state)
 
