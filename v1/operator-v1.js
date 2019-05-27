@@ -37,7 +37,7 @@ router.post('/create-manager', (req, res) => {
       user.managerId = user.managerId || db.getNewUid()
       const manager = {
         id: user.managerId,
-        name: name || user.name,
+        name: publicUser.name,
         avatarUrl: publicUser.avatarUrl || "",
         joinTimeMillis: firebase.database.ServerValue.TIMESTAMP,
         isTraining: false
