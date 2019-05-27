@@ -122,12 +122,12 @@ router.post('/location', async (req, res) => {
   const country = response['country_code']
   const state = response['region_code']
 
-  console.log(legalStates)
-
-  console.log(Object.keys(legalStates).includes(state))
-
-  if (country === 'US' && !Object.keys(legalStates).includes(state)) res.send({ ok: false })
-  else res.send({ ok: true })
+  if (country === 'US' && !Object.keys(legalStates).includes(state)) {
+    console.log('not legal sports betting state')
+    res.send({ ok: false })
+  } else {
+    res.send({ ok: true })
+  }
 })
 
 
