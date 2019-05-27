@@ -115,14 +115,16 @@ router.post('/location', async (req, res) => {
     url: `${BASE_URL}${ip}?access_key=${process.env.IP_STACK_KEY}`
   })
 
-  console.log(response)
-
   const snapshot = await firebase.database().ref('legalStates').once('value')
 
   const legalStates = snapshot.val()
 
   const country = response['country_code']
   const state = response['region_code']
+
+  console.log(legalStates)
+
+  console.log(Object.keys(legalStates).includes(state))
 
   if (country === 'US' && !Object.keys(legalStates).includes(state)) res.send({ ok: false })
   else res.send({ ok: true })
