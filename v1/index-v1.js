@@ -103,11 +103,13 @@ router.use(logRequest)
 
 router.use(determineIpAddress)
 
-router.post(unless(['/*/callback', '/public/*', '/profile/manager/*'], verifyIdToken))
+router.use(unless(['/*/callback', '/public/*', '/profile/manager/*'], verifyIdToken))
 
 router.post('*', unless(['/*/callback', '/public/*', '/*/avatar'], validateSession))
 
-router.post(['/identity', '/cashier', '/webcashier'], unless(['/*/callback', '/*/withdraw'], formatDeviceLocation))
+// router.post(['/identity', '/cashier', '/webcashier'], unless(['/*/callback', '/*/withdraw'], formatDeviceLocation))
+
+router.use('/identity', require('./identity-v1'))
 
 router.use('/cashier', require('./cashier-v1'))
 
