@@ -1,10 +1,14 @@
 'use strict'
 
+const request = require('request-promise')
+const firebase = require('../firebase')
 const express = require('express')
 const router = express.Router()
 const identityService = require('../services/IdentityService')
 const db = require('../services/DbService')
 const cryptor = require('../cryptor')
+
+const BASE_URL = 'http://api.ipstack.com/'
 
 // define the player register route
 router.post('/register', function (req, res) {
@@ -103,28 +107,50 @@ router.post('/document/onComplete', async (req, res) => {
 })
 
 // define the player location route
-router.post('/location', function (req, res) {
+router.get('/location', async (req, res) => {
   const session = req.body
+  const ip = session.ipAddress
 
-  gidx.checkLocation(session)
-    .then(body => {
-      console.log('---------- Identity Location Response:', body)
+  const response = await request.get({
+    url: `${BASE_URL}${ip}?access_key=${process.env.IP_STACK_KEY}`
+  })
 
-      db.saveSessionResponse(session, body)
+  const legalStates = firebase.database().ref('legalStates').once('value').val()
 
-      const locationApproved = approval.isLocationApproved(body)
+  const country = response['country_code']
+  const state = response['region_code']
 
-      console.log('---------- Identity Location complete')
-      res.send(locationApproved)
-    })
-    .catch(err => {
-      res.send({
-        status: 'error',
-        message: err.message
-      })
-      console.log('ERROR', err)
-    })
+  if (country === 'US' && !Object.keys(legalStates).includes(state)) {
+    res({ ok: false })
+  } else {
+    res({ ok: true })
+  }
 })
+
+
+
+// router.post('/location', function (req, res) {
+//   const session = req.body
+
+//   gidx.checkLocation(session)
+//     .then(body => {
+//       console.log('---------- Identity Location Response:', body)
+
+//       db.saveSessionResponse(session, body)
+
+//       const locationApproved = approval.isLocationApproved(body)
+
+//       console.log('---------- Identity Location complete')
+//       res.send(locationApproved)
+//     })
+//     .catch(err => {
+//       res.send({
+//         status: 'error',
+//         message: err.message
+//       })
+//       console.log('ERROR', err)
+//     })
+// })
 
 // define the player monitor route
 router.post('/monitor', function (req, res) {
