@@ -115,6 +115,8 @@ router.post('/location', async (req, res) => {
     url: `${BASE_URL}${ip}?access_key=${process.env.IP_STACK_KEY}`
   })
 
+  console.log(response)
+
   const snapshot = await firebase.database().ref('legalStates').once('value')
 
   const legalStates = snapshot.val()
