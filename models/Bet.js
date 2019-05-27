@@ -69,8 +69,8 @@ module.exports = class Bet {
     if (this.returned !== -1) return this.returned;
     if (typeof game === "undefined") return undefined;
 
-    const awayScore = game.awayTeamScore;
-    const homeScore = game.homeTeamScore;
+    const awayScore = game.awayTeamScore || 0;
+    const homeScore = game.homeTeamScore || 0;
     const spread = homeScore - awayScore;
 
     if (this.type === "OVER_UNDER") {
