@@ -24,11 +24,21 @@ router.post('/create-manager', (req, res) => {
         .ref('users')
         .child(userId)
         .once('value')
+
       const user = userSnapshot.val()
+
+      const publicSnapshot = await firebase.database()
+        .ref('public')
+        .child(`users/${user.publicId}`)
+        .once('value')
+
+      const publicUser = publicSnapshot.val()
+
       user.managerId = user.managerId || db.getNewUid()
       const manager = {
         id: user.managerId,
         name: name || user.name,
+        avatarUrl: publicUser.avatarUrl || "",
         joinTimeMillis: firebase.database.ServerValue.TIMESTAMP,
         isTraining: false
       }
