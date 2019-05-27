@@ -4,107 +4,107 @@ const request = require('request-promise')
 const firebase = require('../firebase')
 const express = require('express')
 const router = express.Router()
-const identityService = require('../services/IdentityService')
-const db = require('../services/DbService')
-const cryptor = require('../cryptor')
+// const identityService = require('../services/IdentityService')
+// const db = require('../services/DbService')
+// const cryptor = require('../cryptor')
 
 const BASE_URL = 'http://api.ipstack.com/'
 
 // define the player register route
-router.post('/register', function (req, res) {
-  const session = req.body
-  const identity = session.request
+// router.post('/register', function (req, res) {
+//   const session = req.body
+//   const identity = session.request
 
-  if (identity.ssnEncrypted) {
-    identity.ssn = cryptor.decryptFromHex(identity.ssnEncrypted)
-    delete identity.ssnEncrypted
-  }
+//   if (identity.ssnEncrypted) {
+//     identity.ssn = cryptor.decryptFromHex(identity.ssnEncrypted)
+//     delete identity.ssnEncrypted
+//   }
 
-  identityService.verifyWithGidx(identity, session)
-    .then(response => {
-      res.send(response)
-      console.log('Identity Registration complete')
-    })
-    .catch(err => {
-      res.send({
-        status: 'error',
-        message: err.message
-      })
-      console.log('ERROR', err)
-    })
-})
+//   identityService.verifyWithGidx(identity, session)
+//     .then(response => {
+//       res.send(response)
+//       console.log('Identity Registration complete')
+//     })
+//     .catch(err => {
+//       res.send({
+//         status: 'error',
+//         message: err.message
+//       })
+//       console.log('ERROR', err)
+//     })
+// })
 
-router.get('/document/sdkToken', (req, res) => {
-  const userId = req.body.userId
+// router.get('/document/sdkToken', (req, res) => {
+//   const userId = req.body.userId
 
-  db.getOnfidoApplicantId(userId)
-    .then(async applicantId => {
-      if (!applicantId) {
-        const identity = await db.getUserIdentity(userId)
-        const applicant = await onfido.createApplicant(identity)
-        applicantId = applicant.id
-        db.saveOnfidoApplicantId(userId, applicant.id)
-      }
-      return onfido.getSdkToken(applicantId)
-    })
-    .then(sdkToken => res.send({
-      status: 'success',
-      data: sdkToken
-    }))
-    .catch(err => {
-      res.send({
-        status: 'error',
-        message: err.message
-      })
-      console.log('ERROR', err)
-    })
-})
+//   db.getOnfidoApplicantId(userId)
+//     .then(async applicantId => {
+//       if (!applicantId) {
+//         const identity = await db.getUserIdentity(userId)
+//         const applicant = await onfido.createApplicant(identity)
+//         applicantId = applicant.id
+//         db.saveOnfidoApplicantId(userId, applicant.id)
+//       }
+//       return onfido.getSdkToken(applicantId)
+//     })
+//     .then(sdkToken => res.send({
+//       status: 'success',
+//       data: sdkToken
+//     }))
+//     .catch(err => {
+//       res.send({
+//         status: 'error',
+//         message: err.message
+//       })
+//       console.log('ERROR', err)
+//     })
+// })
 
-router.post('/document/onComplete', async (req, res) => {
-  const session = req.body
-  const userId = session.userId
+// router.post('/document/onComplete', async (req, res) => {
+//   const session = req.body
+//   const userId = session.userId
 
-  const docCheckPromise = db.getOnfidoApplicantId(userId)
-    .then(applicantId => onfido.checkApplicantDocument(applicantId))
+//   const docCheckPromise = db.getOnfidoApplicantId(userId)
+//     .then(applicantId => onfido.checkApplicantDocument(applicantId))
 
-  try {
-    const [user, docCheck] = await Promise.all([
-      db.getUser(userId),
-      docCheckPromise
-    ])
+//   try {
+//     const [user, docCheck] = await Promise.all([
+//       db.getUser(userId),
+//       docCheckPromise
+//     ])
 
-    console.log('DOCUMENT CHECK', docCheck)
-    db.saveSessionResponse(session, docCheck)
+//     console.log('DOCUMENT CHECK', docCheck)
+//     db.saveSessionResponse(session, docCheck)
 
-    if (docCheck.status === 'in_progress') {
-      const newStatus = user.documentStatus !== 'FAIL'
-        ? 'PENDING'
-        : 'RETRY'
+//     if (docCheck.status === 'in_progress') {
+//       const newStatus = user.documentStatus !== 'FAIL'
+//         ? 'PENDING'
+//         : 'RETRY'
 
-      db.updateUserDocumentStatus(userId, newStatus)
-      return res.send({
-        status: 'success',
-        data: newStatus
-      })
-    } else if (docCheck.result === 'clear') {
-      db.updateUserDocumentStatus(userId, 'VERIFIED')
-      return res.send({
-        status: 'success',
-        data: 'VERIFIED'
-      })
-    }
-    return res.send({
-      status: 'fail',
-      message: 'Your ID document could not be verified.'
-    })
-  } catch (err) {
-    res.send({
-      status: 'error',
-      message: err.message
-    })
-    console.log('ERROR', err)
-  }
-})
+//       db.updateUserDocumentStatus(userId, newStatus)
+//       return res.send({
+//         status: 'success',
+//         data: newStatus
+//       })
+//     } else if (docCheck.result === 'clear') {
+//       db.updateUserDocumentStatus(userId, 'VERIFIED')
+//       return res.send({
+//         status: 'success',
+//         data: 'VERIFIED'
+//       })
+//     }
+//     return res.send({
+//       status: 'fail',
+//       message: 'Your ID document could not be verified.'
+//     })
+//   } catch (err) {
+//     res.send({
+//       status: 'error',
+//       message: err.message
+//     })
+//     console.log('ERROR', err)
+//   }
+// })
 
 // define the player location route
 router.get('/location', async (req, res) => {
@@ -153,87 +153,87 @@ router.get('/location', async (req, res) => {
 // })
 
 // define the player monitor route
-router.post('/monitor', function (req, res) {
-  const session = req.body
+// router.post('/monitor', function (req, res) {
+//   const session = req.body
 
-  gidx.monitorPlayer(session)
-    .then(body => {
-      console.log('---------- Identity Monitor Response:', body)
+//   gidx.monitorPlayer(session)
+//     .then(body => {
+//       console.log('---------- Identity Monitor Response:', body)
 
-      db.saveSessionResponse(session, body)
+//       db.saveSessionResponse(session, body)
 
-      const approved = approval.isUserApproved(body)
+//       const approved = approval.isUserApproved(body)
 
-      console.log('---------- Identity Monitor complete')
-      res.send(approved)
-    })
-    .catch(err => {
-      res.send({
-        status: 'error',
-        message: err.message
-      })
-      console.log('ERROR', err)
-    })
-})
+//       console.log('---------- Identity Monitor complete')
+//       res.send(approved)
+//     })
+//     .catch(err => {
+//       res.send({
+//         status: 'error',
+//         message: err.message
+//       })
+//       console.log('ERROR', err)
+//     })
+// })
 
-router.post('/gidx/callback', async function (res, req) {
-  const userId = req.body.MerchantCustomerID || req.query.userId
-  console.log('GIDX Profile Notification callback: ', userId)
+// router.post('/gidx/callback', async function (res, req) {
+//   const userId = req.body.MerchantCustomerID || req.query.userId
+//   console.log('GIDX Profile Notification callback: ', userId)
 
-  const session = {
-    id: db.getNewUid(),
-    serviceType: 'PROFILE',
-    userId
-  }
-  db.saveSession(session)
+//   const session = {
+//     id: db.getNewUid(),
+//     serviceType: 'PROFILE',
+//     userId
+//   }
+//   db.saveSession(session)
 
-  const playerProfile = await gidx.checkPlayerProfile(session)
-  db.saveSessionResponse(session, playerProfile)
+//   const playerProfile = await gidx.checkPlayerProfile(session)
+//   db.saveSessionResponse(session, playerProfile)
 
-  if (playerProfile.ReasonCodes.includes('ID-VERIFIED')) {
-    db.transactUserUpdate(userId, user => {
-      user.identityVerified = true
-    })
-  }
+//   if (playerProfile.ReasonCodes.includes('ID-VERIFIED')) {
+//     db.transactUserUpdate(userId, user => {
+//       user.identityVerified = true
+//     })
+//   }
 
-  res.send({ Accepted: true })
-})
+//   res.send({ Accepted: true })
+// })
 
-router.post('/onfido/callback', async (req, res) => {
-  const event = req.body
-  console.log('ONFIDO Webhook callback: ', event)
-  res.sendStatus(202)
+// router.post('/onfido/callback', async (req, res) => {
+//   const event = req.body
+//   console.log('ONFIDO Webhook callback: ', event)
+//   res.sendStatus(202)
 
-  switch (event.payload.action) {
-    case 'check.completed':
-      const check = await onfido.getHRef(event.payload.object.href)
-      const startSequence = '/applicants/'
-      const startIndex = check.href.indexOf(startSequence) + startSequence.length
-      const endIndex = check.href.indexOf('/checks/')
-      const applicantId = check.href.substring(startIndex, endIndex)
-      const userId = await db.getUserIdFromOnfidoApplicantId(applicantId)
-      check.reports.forEach(reportId => {
-        onfido.getReport(check.id, reportId).then(report => {
-          if (report.name !== 'document') return
-          if (report.result === 'clear') {
-            return db.updateUserDocumentStatus(userId, 'VERIFIED')
-          }
-          if (!report.breakdown) {
-            return db.updateUserDocumentStatus(userId, 'FAIL')
-          }
-          for (const type of Object.keys(report.breakdown)) {
-            if (
-              type === 'data_comparison' &&
-              report.breakdown[type].result === 'clear'
-            ) {
-              return db.updateUserDocumentStatus(userId, 'VERIFIED')
-            }
-          }
-          return db.updateUserDocumentStatus(userId, 'FAIL')
-        })
-      })
-      break
-  }
-})
+//   switch (event.payload.action) {
+//     case 'check.completed':
+//       const check = await onfido.getHRef(event.payload.object.href)
+//       const startSequence = '/applicants/'
+//       const startIndex = check.href.indexOf(startSequence) + startSequence.length
+//       const endIndex = check.href.indexOf('/checks/')
+//       const applicantId = check.href.substring(startIndex, endIndex)
+//       const userId = await db.getUserIdFromOnfidoApplicantId(applicantId)
+//       check.reports.forEach(reportId => {
+//         onfido.getReport(check.id, reportId).then(report => {
+//           if (report.name !== 'document') return
+//           if (report.result === 'clear') {
+//             return db.updateUserDocumentStatus(userId, 'VERIFIED')
+//           }
+//           if (!report.breakdown) {
+//             return db.updateUserDocumentStatus(userId, 'FAIL')
+//           }
+//           for (const type of Object.keys(report.breakdown)) {
+//             if (
+//               type === 'data_comparison' &&
+//               report.breakdown[type].result === 'clear'
+//             ) {
+//               return db.updateUserDocumentStatus(userId, 'VERIFIED')
+//             }
+//           }
+//           return db.updateUserDocumentStatus(userId, 'FAIL')
+//         })
+//       })
+//       break
+//   }
+// })
 
 module.exports = router
