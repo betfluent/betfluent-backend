@@ -115,7 +115,9 @@ router.get('/location', async (req, res) => {
     url: `${BASE_URL}${ip}?access_key=${process.env.IP_STACK_KEY}`
   })
 
-  const legalStates = firebase.database().ref('legalStates').once('value').val()
+  const snapshot = await firebase.database().ref('legalStates').once('value')
+
+  const legalStates = snapshot.val()
 
   const country = response['country_code']
   const state = response['region_code']
