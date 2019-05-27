@@ -122,11 +122,8 @@ router.get('/location', async (req, res) => {
   const country = response['country_code']
   const state = response['region_code']
 
-  if (country === 'US' && !Object.keys(legalStates).includes(state)) {
-    res({ ok: false })
-  } else {
-    res({ ok: true })
-  }
+  if (country === 'US' && !Object.keys(legalStates).includes(state)) res.send({ ok: false })
+  else res.send({ ok: true })
 })
 
 
