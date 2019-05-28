@@ -37,4 +37,9 @@ router.post('/wager', async function (req, res) {
   }
 })
 
+router.post('/deposit/callback', function (req, res) {
+  const stuff = req.body;
+  console.log(stuff)
+});
+
 module.exports = router
