@@ -1,6 +1,5 @@
 'use strict'
-
-const moment = require('moment')
+const PayPalService = require('../services/PayPalService')
 const db = require('../services/DbService')
 const validator = require('../services/ValidateService')
 const express = require('express')
@@ -37,9 +36,15 @@ router.post('/wager', async function (req, res) {
   }
 })
 
-router.post('/deposit/callback', function (req, res) {
-  const stuff = req.body;
-  console.log(stuff)
+router.post('/deposit', async function (req, res) {
+  const { orderID, userId } = req.body;
+
+  const response = await PayPalService(orderId)
+
+  if (response.result) {
+    console.log(response.result)
+  }
+  res.send({ status: 'success' })
 });
 
 module.exports = router
