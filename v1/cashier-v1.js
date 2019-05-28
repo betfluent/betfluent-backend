@@ -46,7 +46,7 @@ router.post('/deposit', async function (req, res) {
   let amount;
   if (response.result) data = response.result.purchase_units[0]
   if (data && data.payments) capture = data.payments.captures[0]
-  if (capture && capture.amount) amount = parseFloat(amount.value).toFixed(2) * 100
+  if (capture && capture.amount) amount = parseFloat(capture.amount.value).toFixed(2) * 100
 
   db.depositToUserBalance(userId, amount)
 
