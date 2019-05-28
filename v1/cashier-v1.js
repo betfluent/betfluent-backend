@@ -42,13 +42,15 @@ router.post('/deposit', async function (req, res) {
   const response = await PayPalService(orderID)
 
   let data;
+  let capture;
   let amount;
   if (response.result) data = response.result.purchase_units[0]
-  if (data.payments) amount = data.payments.captures[0].amount
+  if (data.payments) capture = data.payments.captures[0]
+  if (capture.amount) amount = parseFloat(amount.value).toFixed(2) * 100
 
-  console.log(amount)
+  db.depositToUserBalance(userId, amount)
 
-  res.send({ status: !!data ? 'success' : 'fail' })
+  res.send({ status: !!amount ? 'success' : 'fail' })
 });
 
 module.exports = router
