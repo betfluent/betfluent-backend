@@ -46,7 +46,7 @@ router.post('/deposit', async function (req, res) {
   if (response.result) {
     response.result.purchase_units.forEach(item => {
       item.payments.captures.forEach(item => {
-        amount += parseFloat(item.amount.value).toFixed(2) * 100
+        if (item.amount.value) amount += parseFloat(item.amount.value).toFixed(2) * 100
       })
     })
   }
