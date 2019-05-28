@@ -39,7 +39,7 @@ router.post('/wager', async function (req, res) {
 router.post('/deposit', async function (req, res) {
   const { orderID, userId } = req.body;
 
-  const response = await PayPalService(orderId)
+  const response = await PayPalService(orderID)
 
   if (response.result) {
     console.log(response.result)
