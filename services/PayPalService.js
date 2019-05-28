@@ -5,7 +5,6 @@ let clientId = process.env.PAYPAL_CLIENT;
 let clientSecret = process.env.PAYPAL_KEY;
 let environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
 let client = new paypal.core.PayPalHttpClient(environment);
- 
 
 const RetrieveOrder = async (orderId) => {
     let response;
