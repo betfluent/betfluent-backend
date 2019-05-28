@@ -41,10 +41,11 @@ router.post('/deposit', async function (req, res) {
 
   const response = await PayPalService(orderID)
 
-  if (response.result) {
-    console.log(response.result)
-  }
-  res.send({ status: 'success' })
+  let data;
+  if (response.result) data = response.result.purchase_units[0]
+  console.log(data.payments)
+
+  res.send({ status: !!data ? 'success' : 'fail' })
 });
 
 module.exports = router
