@@ -42,8 +42,11 @@ router.post('/deposit', async function (req, res) {
   const response = await PayPalService(orderID)
 
   let data;
+  let amount;
   if (response.result) data = response.result.purchase_units[0]
-  console.log(data.payments)
+  if (data.payments) amount = data.payments.captures[0].amount
+
+  console.log(amount)
 
   res.send({ status: !!data ? 'success' : 'fail' })
 });
