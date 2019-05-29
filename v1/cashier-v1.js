@@ -88,8 +88,6 @@ router.post('/withdraw', async function (req, res) {
     getLastUserWithdrawal(session.userId)
   ])
 
-  db.saveSessionResponse(session, monitorCheck)
-
   const aWeekAgo = moment().subtract(7, 'days')
   if (lastWithdrawal && moment(lastWithdrawal.updatedTimeMillis).isAfter(aWeekAgo)) {
     return res.send({
