@@ -4,6 +4,7 @@ const lob = require('../apis/LobApi')
 const db = require('../services/DbService')
 const validator = require('../services/ValidateService')
 const express = require('express')
+const moment = require('moment')
 const router = express.Router()
 
 const getLastUserWithdrawal = userId => {
@@ -152,8 +153,6 @@ router.post('/withdraw', async function (req, res) {
             status: 'fail',
             message: 'Cannot withdraw more than available balance.'
           }
-        } else {
-          mailer.sendPendingWithdrawalEmail(user.email, amount)
         }
         res.send(response)
       })
