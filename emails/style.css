@@ -1,0 +1,262 @@
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: #1A661A;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.floatLeft {
+  float: left;
+}
+
+.floatRight {
+  float: right;
+}
+
+.clear {
+  clear: both;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+.divider, .thinDivider {
+  width: 100%;
+  height: 2px;
+  background-color: #000;
+  margin: 16px auto;
+}
+
+.thinDivider {
+  height: 1px;
+  margin: 0 auto 36px;
+}
+
+.emailBody {
+  width: 80%;
+  max-width: 540px;
+  margin: auto;
+}
+
+.logo {
+  display: block;
+  margin: 16px auto 32px;
+}
+
+.fundInfo {
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.game {
+  margin: 32px 0;
+}
+
+.gameInfo {
+  margin-bottom: 16px;
+}
+
+.teamNames {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.teamScores, .userBetResult, .bigNumber, .smallNumber {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bet {
+  margin-bottom: 12px;
+}
+
+.betInfo {
+  float: left;
+  width: 80%;
+}
+
+.userBetResult, .bigNumber, .smallNumber {
+  float: right;
+}
+
+.bigNumber {
+  font-size: 16px;
+}
+
+.bets {
+  font-size: 12px;
+}
+
+.betSummary {
+  color: rgba(0,0,0,0.38);
+}
+
+.fundSummary {
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.userReturn {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.userWager {
+  color: rgba(0,0,0,0.38);
+  margin-bottom: 8px;
+}
+
+.broadcast {
+  font-size: 12px;
+  line-height: 20px;
+  color: rgba(0,0,0,0.38);
+  margin-bottom: 24px;
+}
+
+.betPlacedSummary, .atStake, .couldWin, .couldProfit, .toWin, .btb {
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.couldProfit {
+  margin-bottom: 24px;
+}
+
+.betPlacedSummary {
+  font-weight: 600;
+}
+
+.betStats .floatLeft div:nth-child(2) {
+  color: rgba(0,0,0,0.38);
+}
+
+.betStats .floatRight {
+  font-weight: 600;
+}
+
+.couldProfit .floatRight {
+  font-size: 16px;
+  color: #1A661A;
+}
+
+.toWin div:first-child, .btb div:first-child {
+  color: rgba(0,0,0,0.38);
+}
+
+.toWin div:nth-child(2) span:first-child {
+  font-weight: 600;
+}
+
+.btb a {
+  font-size: 14px;
+}
+
+.footer {
+  font-size: 12px;
+  line-height: 14px;
+  color: rgba(0,0,0,0.54);
+  text-align: center;
+  width: 200px;
+  margin: 48px auto 32px;
+}
+
+.welcome {
+  text-align: center;
+}
+
+.welcome h1 {
+  font-size: 28px;
+}
+
+.welcome h2 {
+  font-size: 18px;
+}
+
+.welcome h3 {
+  font-size: 16px;
+}
+
+.welcome p {
+  font-weight: 300;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.welcomeHeader {
+  background-color: #1A661A;
+  color: #fff;
+  padding: 24px 0;
+  margin-bottom: 24px;
+}
+
+.confirmEmail {
+  margin: 24px auto;
+}
+
+.confirmEmail p {
+  margin: 16px auto;
+  width: 90%;
+}
+
+.confirmEmail a {
+  display: block;
+  width: 148px;
+  height: 36px;
+  font-size: 14px;
+  line-height: 36px;
+  margin: 24px auto 36px;
+  padding: 0;
+  background-color: #1A661A;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.welcomeContent {
+  width: 90%;
+  margin: 36px auto;
+  text-align: left;
+}
+
+.welcomeContent .floatLeft {
+  width: 16%;
+}
+
+.welcomeContent .floatRight {
+  width: 75%;
+}
+
+.socialMedia {
+  text-align: center;
+  color: rgba(0,0,0,0.38);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.socialMedia img {
+  width: 24px;
+  margin: 0 16px;
+}
+
+.socialMedia p {
+  margin-bottom: 48px;
+}
+
+@media (max-width: 624px) {
+  .emailBody {
+    width: 87.5%;
+  }
+
+  .betInfo {
+    width: 70%;
+  }
+}
