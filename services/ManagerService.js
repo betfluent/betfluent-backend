@@ -2,6 +2,7 @@
 
 const schedule = require('node-schedule')
 const db = require('./DbService')
+const mailer = require('./MailService')
 const Fund = require('../models/Fund')
 const { isEmpty } = require('../utils')
 
@@ -21,6 +22,8 @@ const returnFund = (fundId) => db.returnFund(fundId)
             }
             return map
           }, {})
+          
+        mailer.sendFundReturnedEmail(emailUserAmounts, fund)
       }
       if (successes && !isEmpty(successes)) emailSuccesses()
 
@@ -51,6 +54,7 @@ const scheduleFundClosing = (fundId, closeTimeMillis) => {
     const result = await db.closeFund(fundId)
     if (result.committed) {
       const fund = result.snapshot.val()
+      mailer.sendFundIsClosedEmailToManager(fund)
     }
   })
   console.log('----- FUND SCHEDULED TO CLOSE: ', `${fundId} @ ${closingDate}`)
@@ -92,7 +96,17 @@ const cancelStagedBet = (bet) => {
 
 const placeFundBet = async (bet) => {
   const fundBetTransaction = await db.transactFundBet(bet)
+
+  const onTransactionSuccess = async () => {
+    const fund = new Fund(fundBetTransaction.snapshot.val())
+    const game = await db.getGame(bet.gameLeague, bet.gameId)
+    const users = await db.getUsersInFund(bet.fundId)
+    const usersToEmail = users.filter(user => user.preferences.receiveBetEmail)
+    mailer.sendFundBetPlacedEmail(usersToEmail, fund, game, bet)
+  }
+
   if (fundBetTransaction.committed) {
+    onTransactionSuccess()
     return {
       status: 'success',
       data: bet

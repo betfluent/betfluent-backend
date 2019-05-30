@@ -2,6 +2,7 @@
 
 const db = require('./services/DbService')
 const manager = require('./services/ManagerService')
+const mailer = require('./services/MailService')
 
 const watchStagedFunds = () => {
   db.getFundsOnAddOrChangeFeed('STAGED', fund => {
@@ -19,6 +20,7 @@ const watchOpenFunds = () => {
       const result = await db.closeFund(fund.id)
       if (result.committed) {
         const closedFund = result.snapshot.val()
+        mailer.sendFundIsClosedEmailToManager(closedFund)
       }
     } else {
       manager.scheduleFundClosing(fund.id, fund.closingTime * 1000)

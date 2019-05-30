@@ -4,6 +4,7 @@ const express = require('express')
 const db = require('../services/DbService')
 const fundService = require('../services/FundService')
 const commentService = require('../services/FundCommentService')
+const mailer = require('../services/MailService')
 const { ensureIsManager } = require('../middleware/authware')
 const router = express.Router()
 

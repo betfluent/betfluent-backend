@@ -1,6 +1,7 @@
 'use strict'
 
 const express = require('express')
+const mailer = require('../services/MailService')
 const db = require('../services/DbService')
 const authService = require('../services/AuthService')
 const router = express.Router()
@@ -20,6 +21,10 @@ router.post('/', async (req, res) => {
   db.createNewUserData(Object.assign({ userId }, session.request))
     .then(emailCode => {
       res.send({ status: 'success' })
+      mailer.sendWelcomeEmail(session.request.email, emailCode)
+      setTimeout(() => {
+        mailer.sendNewUserEmailToRaymour(session.request)
+      }, 1000)
     })
     .catch(err => res.send({
       status: 'error',

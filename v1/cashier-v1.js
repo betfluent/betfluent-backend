@@ -2,6 +2,7 @@
 const PayPalService = require('../services/PayPalService')
 const lob = require('../apis/LobApi')
 const db = require('../services/DbService')
+const mailer = require('../services/MailService')
 const validator = require('../services/ValidateService')
 const express = require('express')
 const moment = require('moment')
@@ -42,6 +43,7 @@ router.post('/wager', async function (req, res) {
             message: 'User does not have available balance to cover the wager'
           }
           res.send(response)
+          mailer.sendUserWageredOnFundEmail(user, wager.amount, fund)
         } else {
           res.send(results)
         }
@@ -154,6 +156,7 @@ router.post('/withdraw', async function (req, res) {
             message: 'Cannot withdraw more than available balance.'
           }
         }
+        mailer.sendPendingWithdrawalEmail(user.email, amount)
         res.send(response)
       })
       .catch(err => {
