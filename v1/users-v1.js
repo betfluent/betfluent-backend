@@ -42,15 +42,16 @@ router.post('/verify-email', (req, res) => {
       if (!verifyInfo) {
         throw new Error(`The verification code was not found in our records`)
       }
-      Object.keys(verifyInfo).forEach(async (key) => {
-        await authService.verifyUserEmail(key)
-        await db.deleteUserEmailVerificationInfo(key)
-        session.userId = key
-        await db.saveSessionResponse(session, verifyInfo)
-      })
+      const key = Object.keys(verifyInfo)[0]
+      await authService.verifyUserEmail(key)
+      await db.deleteUserEmailVerificationInfo(key)
+      session.userId = key
+      await db.saveSessionResponse(session, verifyInfo)
+
       res.send({
         status: 'success',
-        message: `${emailAddress} has been successfully verified.`
+        message: `You have been successfully verified.`,
+        customToken: await admin.auth().createCustomToken(key)
       })
     })
     .catch(err => {
