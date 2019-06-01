@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
     }))
 })
 
-router.post('/verify-email', (req, res) => {
+router.post('/verify-email', async (req, res) => {
   const session = req.body
   const emailCode = session.request
 
