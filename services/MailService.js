@@ -292,13 +292,16 @@ const sendWelcomeEmail = (emailAddress, emailCode) => {
     }
   })
 
+  const siteUrl = process.env.BACKEND_ENV === 'debug' ? 'rhode-island-02108.herokuapp.com' : 'www.betfluent.com'
+
   return email.send({
     template: 'welcome',
     message: {
       to: emailAddress
     },
     locals: {
-      emailCode
+      emailCode,
+      siteUrl
     }
   })
 }

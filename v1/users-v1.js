@@ -4,6 +4,7 @@ const express = require('express')
 const mailer = require('../services/MailService')
 const db = require('../services/DbService')
 const authService = require('../services/AuthService')
+const admin = require('../firebase')
 const router = express.Router()
 
 router.post('/', async (req, res) => {
@@ -34,31 +35,25 @@ router.post('/', async (req, res) => {
 
 router.post('/verify-email', (req, res) => {
   const session = req.body
-  const userId = session.userId
   const emailCode = session.request
 
   let emailAddress
-  authService.getUserRecord(userId)
-    .then(userRecord => {
-      emailAddress = userRecord.email
-      if (userRecord.emailVerified) {
-        throw new Error(`${emailAddress} has already been verified.`)
+    db.getUserEmailVerificationInfo(emailCode)
+    .then(async (verifyInfo) => {
+      if (!verifyInfo) {
+        throw new Error(`The verification code was not found in our records`)
       }
-    })
-    .then(() => db.getUserEmailVerificationInfo(userId))
-    .then(verifyInfo => {
-      if (!verifyInfo || verifyInfo.code !== emailCode) {
-        throw new Error(`The verification code for ${emailAddress} does not match the one provided.`)
-      }
-      return authService.verifyUserEmail(userId)
-    })
-    .then(userRecord => {
+      const key = Object.keys(verifyInfo)[0]
+      await authService.verifyUserEmail(key)
+      await db.deleteUserEmailVerificationInfo(key)
+      session.userId = key
+      await db.saveSessionResponse(session, verifyInfo)
+
       res.send({
         status: 'success',
-        message: `${emailAddress} has been successfully verified.`
+        message: `You have been successfully verified.`,
+        customToken: await admin.auth().createCustomToken(key)
       })
-      db.deleteUserEmailVerificationInfo(userId)
-      db.saveSessionResponse(session, userRecord)
     })
     .catch(err => {
       res.send({

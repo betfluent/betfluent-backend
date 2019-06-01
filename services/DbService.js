@@ -237,12 +237,13 @@ const getUserWithManagerId = async managerId => {
   return null
 }
 
-const getUserEmailVerificationInfo = async userId => {
+const getUserEmailVerificationInfo = async emailCode => {
   const snapshot = await db
     .ref('emailVerifications')
-    .child(userId)
+    .orderByChild('code')
+    .equalTo(emailCode)
     .once('value')
-  return snapshot.val()
+  return snapshot.exists() ? snapshot.val() : null
 }
 
 const getUserIdentity = async userId => {
