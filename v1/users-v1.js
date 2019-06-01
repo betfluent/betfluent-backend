@@ -34,31 +34,24 @@ router.post('/', async (req, res) => {
 
 router.post('/verify-email', (req, res) => {
   const session = req.body
-  const userId = session.userId
   const emailCode = session.request
 
   let emailAddress
-  authService.getUserRecord(userId)
-    .then(userRecord => {
-      emailAddress = userRecord.email
-      if (userRecord.emailVerified) {
-        throw new Error(`${emailAddress} has already been verified.`)
-      }
-    })
-    .then(() => db.getUserEmailVerificationInfo(userId))
+    db.getUserEmailVerificationInfo(emailCode)
     .then(verifyInfo => {
-      if (!verifyInfo || verifyInfo.code !== emailCode) {
-        throw new Error(`The verification code for ${emailAddress} does not match the one provided.`)
+      if (!verifyInfo) {
+        throw new Error(`The verification code was not found in our records`)
       }
-      return authService.verifyUserEmail(userId)
-    })
-    .then(userRecord => {
+      Object.keys(verifyInfo).forEach(async (key) => {
+        await authService.verifyUserEmail(key)
+        await db.deleteUserEmailVerificationInfo(key)
+        session.userId = key
+        await db.saveSessionResponse(session, verifyInfo)
+      })
       res.send({
         status: 'success',
         message: `${emailAddress} has been successfully verified.`
       })
-      db.deleteUserEmailVerificationInfo(userId)
-      db.saveSessionResponse(session, userRecord)
     })
     .catch(err => {
       res.send({
