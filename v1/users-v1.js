@@ -32,13 +32,13 @@ router.post('/', async (req, res) => {
     }))
 })
 
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', (req, res) => {
   const session = req.body
   const emailCode = session.request
 
   let emailAddress
     db.getUserEmailVerificationInfo(emailCode)
-    .then(verifyInfo => {
+    .then(async (verifyInfo) => {
       if (!verifyInfo) {
         throw new Error(`The verification code was not found in our records`)
       }
