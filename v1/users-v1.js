@@ -4,6 +4,7 @@ const express = require('express')
 const mailer = require('../services/MailService')
 const db = require('../services/DbService')
 const authService = require('../services/AuthService')
+const admin = require('../firebase')
 const router = express.Router()
 
 router.post('/', async (req, res) => {
