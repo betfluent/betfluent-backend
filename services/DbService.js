@@ -1424,7 +1424,7 @@ const returnFund = async fundId => {
 
   const interaction = {
     time: firebase.database.ServerValue.TIMESTAMP,
-    amount: managerFee / 100,
+    amount: managerFee,
     type: 'Influencer Earnings',
     userId: managerUserId,
     public: false
@@ -1467,7 +1467,7 @@ const transactFundBet = bet => {
             else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
           }
 
-          if (bet.wagered <= 0) return
+          // if (bet.wagered <= 0) return
 
           if (bet.fade) {
             fund.counterBalance -= bet.wagered

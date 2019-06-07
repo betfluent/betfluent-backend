@@ -47,7 +47,7 @@ const watchPendingFunds = () => {
             )
             if (fundDone && !returning) {
               returning = true
-              manager.scheduleFundReturning(fund.id, Date.now() + 1000)
+              manager.scheduleFundReturning(fund.id, Date.now() + 15 * 60 * 1000)
             }
           })
       })
