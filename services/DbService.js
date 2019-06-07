@@ -1374,6 +1374,25 @@ const returnFund = async fundId => {
     returns.push(userReturn)
   })
 
+  const successes = {}
+  const failures = {}
+  const results = await Promise.all(returns)
+  results.forEach(result => {
+    if (!result.committed) {
+      if (result.status === 'fail') failures[result.userId] = result.amount
+      else {
+        successes[result.userId] = result.amount
+        console.log(
+          `Fund ${fundId} is has an extra ${
+            result.amount
+          } cents after a half-failed return`
+        )
+      }
+    } else {
+      successes[result.userId] = result.amount
+    }
+  })
+
   const managerFee = fund.balance + fund.counterBalance;
 
   const managerUserSnap = await db
@@ -1401,24 +1420,15 @@ const returnFund = async fundId => {
     }
   }
 
-  const successes = {}
-  const failures = {}
-  const results = await Promise.all(returns)
-  results.forEach(result => {
-    if (!result.committed) {
-      if (result.status === 'fail') failures[result.userId] = result.amount
-      else {
-        successes[result.userId] = result.amount
-        console.log(
-          `Fund ${fundId} is has an extra ${
-            result.amount
-          } cents after a half-failed return`
-        )
-      }
-    } else {
-      successes[result.userId] = result.amount
-    }
-  })
+  const interaction = {
+    time: firebase.database.ServerValue.TIMESTAMP,
+    amount: managerFee / 100,
+    type: 'Influencer Earnings',
+    userId: managerUserId,
+    public: false
+  }
+
+  saveInteraction(interaction)
 
   if (isEmpty(failures)) {
     return {
