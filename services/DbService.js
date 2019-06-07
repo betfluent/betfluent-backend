@@ -1405,11 +1405,13 @@ const returnFund = async fundId => {
 
   const managerUserId = Object.keys(managerUser)[0]
 
+  console.log(managerUserId)
+
   const compensateManager = await db
     .ref('users')
     .child(managerUserId)
     .transaction(user => {
-      user.balance += managerFee
+      if (user) user.balance += managerFee
       return user
     })
 
