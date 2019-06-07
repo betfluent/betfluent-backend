@@ -1374,6 +1374,33 @@ const returnFund = async fundId => {
     returns.push(userReturn)
   })
 
+  const managerFee = fund.balance + fund.counterBalance;
+
+  const managerUserSnap = await db
+    .ref('users')
+    .orderByChild('managerId')
+    .equalTo(fund.managerId)
+    .once('value')
+
+  const managerUser = managerUserSnap.val()
+
+  const managerUserId = Object.keys(managerUser)[0]
+
+  const compensateManager = await db
+    .ref('users')
+    .child(managerUserId)
+    .transaction(user => {
+      user.balance += managerFee
+      return user
+    })
+
+  if (!compensateManager.committed) {
+    return {
+      status: 'fail',
+      message: 'Manager NOT compensated'
+    }
+  }
+
   const successes = {}
   const failures = {}
   const results = await Promise.all(returns)
