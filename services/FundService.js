@@ -22,9 +22,7 @@ const closeFund = fundId => {
       if (fund) {
         if (fund.status !== 'OPEN') return // only OPEN funds may be closed
         if (fund.open) fund.open = false
-        if (fund.playerCount > 0) {
-          fund.status = 'PENDING'
-        } else fund.status = 'RETURNED'
+        fund.status = 'PENDING'
       }
       return fund
     })
