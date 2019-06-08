@@ -1634,7 +1634,7 @@ const transactFundBetResult = async betId => {
   let interactionType
   if (bet.gameResult(game) === 0) interactionType = 'Result Push'
   else if (bet.gameResult(game) === 1) interactionType = 'Result Win'
-  else interactionType = 'Result Win'
+  else interactionType = 'Result Lose'
 
   const interaction = {
     time: firebase.database.ServerValue.TIMESTAMP,
