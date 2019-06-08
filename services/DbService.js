@@ -1607,12 +1607,11 @@ const transactFundBetResult = async betId => {
     .transaction(fund => {
       if (fund) {
         if (bet.fade) {
-          fund.counterBalance += resultAmount
+          fund.counterBalance += (resultAmount || 0)
           if (!fund.fadeResults) fund.fadeResults = {}
           fund.fadeResults[bet.id] = resultAmount
         } else {
-          fund.balance += resultAmount
-          console.log('HERE`S YOUR BUG', fund.balance, resultAmount)
+          fund.balance += (resultAmount || 0)
           if (!fund.results) fund.results = {}
           fund.results[bet.id] = resultAmount
         }
