@@ -65,7 +65,6 @@ module.exports = class Bet {
    * @return {number} 1 for wins, 0 for push, and -1 for loss.
    */
   gameResult(game) {
-    if (this.returned !== -1) return this.returned;
     if (typeof game === "undefined") return undefined;
 
     const awayScore = game.awayTeamScore || 0;
