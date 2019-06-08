@@ -1612,6 +1612,7 @@ const transactFundBetResult = async betId => {
           fund.fadeResults[bet.id] = resultAmount
         } else {
           fund.balance += resultAmount
+          console.log('HERE`S YOUR BUG', fund.balance, resultAmount)
           if (!fund.results) fund.results = {}
           fund.results[bet.id] = resultAmount
         }
