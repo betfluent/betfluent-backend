@@ -1632,9 +1632,9 @@ const transactFundBetResult = async betId => {
   bet.status = 'RETURNED'
 
   let interactionType
-  if (bet.gameResult(game) === 0) interactionType = 'Result Push'
-  else if (bet.gameResult(game) === 1) interactionType = 'Result Win'
-  else interactionType = 'Result Lose'
+  if (bet.gameResult(game) === 1) interactionType = 'Result Win'
+  else if (bet.gameResult(game) === -1) interactionType = 'Result Lose'
+  else interactionType = 'Result Push'
 
   const interaction = {
     time: firebase.database.ServerValue.TIMESTAMP,

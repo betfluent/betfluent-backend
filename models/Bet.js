@@ -45,7 +45,7 @@ module.exports = class Bet {
     if (selectionId) this.selectionId = selectionId;
     this.status = status;
     this.type = type;
-    if (wagered) this.wagered = wagered;
+    this.wagered = wagered || 0;
     this.fade = fade;
   }
 
