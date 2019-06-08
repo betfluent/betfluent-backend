@@ -1598,8 +1598,10 @@ const transactFundBetResult = async betId => {
   if (game.status !== 'complete' && game.status !== 'closed') {
     return { committed: false } // Do not calculate result with game still being played
   }
-  const resultAmount = bet.resultAmount(game)
+  let resultAmount = bet.resultAmount(game)
   if (typeof resultAmount === 'undefined') return { committed: false } // Cannot automatically return Prop bet
+
+  resultAmount = resultAmount || 0
 
   const fundUpdate = await db
     .ref('funds')
@@ -1607,13 +1609,13 @@ const transactFundBetResult = async betId => {
     .transaction(fund => {
       if (fund) {
         if (bet.fade) {
-          fund.counterBalance += (resultAmount || 0)
+          fund.counterBalance += resultAmount
           if (!fund.fadeResults) fund.fadeResults = {}
-          fund.fadeResults[bet.id] = (resultAmount || 0)
+          fund.fadeResults[bet.id] = resultAmount
         } else {
-          fund.balance += (resultAmount || 0)
+          fund.balance += resultAmount
           if (!fund.results) fund.results = {}
-          fund.results[bet.id] = (resultAmount || 0)
+          fund.results[bet.id] = resultAmount
         }
       }
       return fund
@@ -1630,8 +1632,8 @@ const transactFundBetResult = async betId => {
   bet.status = 'RETURNED'
 
   let interactionType
-  if (resultAmount === 0) interactionType = 'Result Lose'
-  else if (resultAmount === bet.wagered) interactionType = 'Result Push'
+  if (bet.gameResult(game) === 0) interactionType = 'Result Push'
+  else if (bet.gameResult(game) === 1) interactionType = 'Result Win'
   else interactionType = 'Result Win'
 
   const interaction = {

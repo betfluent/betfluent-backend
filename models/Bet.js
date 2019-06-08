@@ -62,6 +62,64 @@ module.exports = class Bet {
 
   /**
    * @param {Object} game the game that the bet outcome depends on. Not necessary if the bet is returned.
+   * @return {number} 1 for wins, 0 for push, and -1 for loss.
+   */
+  gameResult(game) {
+    if (this.returned !== -1) return this.returned;
+    if (typeof game === "undefined") return undefined;
+
+    const awayScore = game.awayTeamScore || 0;
+    const homeScore = game.homeTeamScore || 0;
+    const spread = homeScore - awayScore;
+
+    if (this.type === "OVER_UNDER") {
+      if (awayScore + homeScore === this.points) {
+        return 0;
+      } else if (this.overUnder.toLowerCase() === "over") {
+        if (awayScore + homeScore > this.points) {
+          return 1;
+        }
+        return -1;
+      } else if (awayScore + homeScore < this.points) {
+        return 1;
+      }
+      return -1;
+    }
+    if (this.type === "MONEYLINE") {
+      if (this.selection.indexOf(game.awayTeamName) !== -1) {
+        if (spread < 0) {
+          return 1;
+        } else if (spread > 0) {
+          return -1;
+        }
+        return 0;
+      } else if (spread > 0) {
+        return 1;
+      } else if (spread < 0) {
+        return -1;
+      }
+      return 0;
+    }
+    if (this.type === "SPREAD") {
+      if (this.selection.indexOf(game.awayTeamName) !== -1) {
+        if (spread < this.points) {
+          return 1;
+        } else if (spread > this.points) {
+          return -1;
+        }
+        return 0;
+      } else if (spread > -this.points) {
+        return 1;
+      } else if (spread < -this.points) {
+        return -1;
+      }
+      return 0;
+    }
+    return undefined; // Prop bet results cannot be calculated with available info
+  }
+
+  /**
+   * @param {Object} game the game that the bet outcome depends on. Not necessary if the bet is returned.
    * @return {number} Amount in cents that will be returned based on the wagered amount, the odds, and the score of the game.
    * This includes the stake and winnings upon a win, just the stake upon a push, and 0 cents upon a lose.
    */
