@@ -1495,33 +1495,36 @@ const transactFundBet = bet => {
     .then(result => {
       if (result.committed) {
         let fund = result.snapshot.val()
-        let interaction = {
-          time: firebase.database.ServerValue.TIMESTAMP,
-          amount: bet.wagered,
-          type: 'Bet',
-          managerId: bet.managerId,
-          fundId: fund.id,
-          fundName: fund.name,
-          fundBalance: currencyFormatter.format(fund.balance / 100),
-          wagerId: bet.id,
-          wagerSummary: bet.summary(),
-          gameId: bet.gameId,
-          gameLeague: bet.gameLeague
-        }
-        bet.liveTimeMillis = firebase.database.ServerValue.TIMESTAMP
-        bet.status = 'LIVE'
-        return saveBet(bet).then(() => {
-          if (!bet.fade) {
-            saveInteraction(interaction)
-            updateUserBetStatsAfterPlacing(fund.managerId, bet)
+        if (fund) {
+          let interaction = {
+            time: firebase.database.ServerValue.TIMESTAMP,
+            amount: bet.wagered,
+            type: 'Bet',
+            managerId: bet.managerId,
+            fundId: fund.id,
+            fundName: fund.name,
+            fundBalance: currencyFormatter.format(fund.balance / 100),
+            wagerId: bet.id,
+            wagerSummary: bet.summary(),
+            gameId: bet.gameId,
+            gameLeague: bet.gameLeague
           }
-          db
-            .ref(bet.gameLeague.toLowerCase())
-            .child('live')
-            .child(bet.gameId)
-            .set(true)
-          return result
-        })
+          bet.liveTimeMillis = firebase.database.ServerValue.TIMESTAMP
+          bet.status = 'LIVE'
+          return saveBet(bet).then(() => {
+            if (!bet.fade) {
+              saveInteraction(interaction)
+              updateUserBetStatsAfterPlacing(fund.managerId, bet)
+            }
+            db
+              .ref(bet.gameLeague.toLowerCase())
+              .child('live')
+              .child(bet.gameId)
+              .set(true)
+            return result
+          })
+        }
+        return result
       } else {
         return result
       }
