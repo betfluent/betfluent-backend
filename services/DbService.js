@@ -221,7 +221,7 @@ const getUser = async userId => {
     .ref('users')
     .child(userId)
     .once('value')
-  return snapshot.exists() ? new User(snapshot.val()) : null
+  return snapshot.exists() ? new User(snapshot.val()) : null  
 }
 
 const getUserWithManagerId = async managerId => {
@@ -945,9 +945,7 @@ const closeFund = fundId => {
       if (fund) {
         if (fund.status !== 'OPEN') return // only OPEN funds may be closed
         if (fund.open) fund.open = false
-        if (fund.balance > 0 || fund.counterBalance > 0) {
-          fund.status = 'PENDING'
-        } else fund.status = 'RETURNED'
+        fund.status = 'PENDING'
       }
       return fund
     })
@@ -958,7 +956,8 @@ const closeFund = fundId => {
           bets.forEach(bet => {
             if (!bet.wagered) {
               const pctOfFund = bet.pctOfFund ? bet.pctOfFund : 0
-              bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
+              if (bet.fade) bet.wagered = Math.floor(fund.fadeAmountWagered * pctOfFund / 100)
+              else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
               saveBet(bet)
             }
           })
@@ -1252,6 +1251,39 @@ function transactUserReturn(userId, fundId, amount, fade) {
     })
 }
 
+async function rewardManager(fund) {
+  const managerFee = fund.balance + fund.counterBalance;
+
+  const managerUserSnap = await db
+    .ref('users')
+    .orderByChild('managerId')
+    .equalTo(fund.managerId)
+    .once('value')
+
+  const managerUser = managerUserSnap.val()
+
+  const managerUserId = Object.keys(managerUser)[0]
+
+  const compensateManager = await db
+    .ref('users')
+    .child(managerUserId)
+    .transaction(user => {
+      if (user) user.balance += managerFee
+      return user
+    })
+
+  if (compensateManager.committed) {
+    const interaction = {
+      time: firebase.database.ServerValue.TIMESTAMP,
+      amount: managerFee,
+      type: 'Influencer Earnings',
+      userId: managerUserId,
+      public: false
+    }
+    saveInteraction(interaction)
+  }
+}
+
 function updateFundAfterUserReturn(
   userId,
   fundId,
@@ -1280,6 +1312,7 @@ function updateFundAfterUserReturn(
             fund.fadeReturnCount = fund.fadeReturnCount ? fund.fadeReturnCount + 1 : 1
           }
           if (fund.returnCount === fund.playerCount && fund.fadeReturnCount === fund.fadePlayerCount) {
+            rewardManager(fund)
             fund.returnTimeMillis = firebase.database.ServerValue.TIMESTAMP
             fund.status = 'RETURNED'
             delete fund.isReturning
@@ -1428,7 +1461,7 @@ const transactFundBet = bet => {
             else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
           }
 
-          if (bet.wagered <= 0) return
+          // if (bet.wagered <= 0) return
 
           if (bet.fade) {
             fund.counterBalance -= bet.wagered
@@ -1471,15 +1504,16 @@ const transactFundBet = bet => {
           wagerId: bet.id,
           wagerSummary: bet.summary(),
           gameId: bet.gameId,
-          gameLeague: bet.gameLeague
+          gameLeague: bet.gameLeague,
+          fade: bet.fade
         }
         bet.liveTimeMillis = firebase.database.ServerValue.TIMESTAMP
         bet.status = 'LIVE'
         return saveBet(bet).then(() => {
           if (!bet.fade) {
-            saveInteraction(interaction)
             updateUserBetStatsAfterPlacing(fund.managerId, bet)
           }
+          saveInteraction(interaction)
           db
             .ref(bet.gameLeague.toLowerCase())
             .child('live')
@@ -1561,8 +1595,10 @@ const transactFundBetResult = async betId => {
   if (game.status !== 'complete' && game.status !== 'closed') {
     return { committed: false } // Do not calculate result with game still being played
   }
-  const resultAmount = bet.resultAmount(game)
+  let resultAmount = bet.resultAmount(game)
   if (typeof resultAmount === 'undefined') return { committed: false } // Cannot automatically return Prop bet
+
+  resultAmount = resultAmount || 0
 
   const fundUpdate = await db
     .ref('funds')
@@ -1593,9 +1629,9 @@ const transactFundBetResult = async betId => {
   bet.status = 'RETURNED'
 
   let interactionType
-  if (resultAmount === 0) interactionType = 'Result Lose'
-  else if (resultAmount === bet.wagered) interactionType = 'Result Push'
-  else interactionType = 'Result Win'
+  if (bet.gameResult(game) === 1) interactionType = 'Result Win'
+  else if (bet.gameResult(game) === -1) interactionType = 'Result Lose'
+  else interactionType = 'Result Push'
 
   const interaction = {
     time: firebase.database.ServerValue.TIMESTAMP,
@@ -1609,10 +1645,11 @@ const transactFundBetResult = async betId => {
     wagerSummary: bet.summary(),
     wagerAmount: bet.wagered,
     gameId: bet.gameId,
-    gameLeague: bet.gameLeague
+    gameLeague: bet.gameLeague,
+    fade: bet.fade
   }
 
-  if (!bet.fade) saveInteraction(interaction)
+  saveInteraction(interaction)
 
   return saveBet(bet).then(() => {
     console.log(`\n---------- ${interactionType}:`, bet)

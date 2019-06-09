@@ -139,8 +139,9 @@ async function sendManagerBetPlacedEmail(fund, game, bet) {
 }
 
 function sendUserBetPlacedEmail(user, fund, game, bet) {
+  const userBet = user.investments[fund.id]
   const gameTime = moment(game.scheduledTimeUnix).format('ddd, MMM Do @ h:mm a')
-  const userPortion = user.investments[fund.id] / fund.amountWagered
+  const userPortion = Math.abs(userBet) / (userBet > 0 ? fund.amountWagered : fund.fadeAmountWagered)
   const atStake = Math.floor(userPortion * bet.wagered)
   const formattedAtStake = currencyFormatter.format(atStake / 100)
   const betType = bet.type.replace('_', '/')
@@ -199,8 +200,8 @@ const sendFundReturnedEmail = function(userAmounts, fund) {
 
 const sendUserReturnEmail = async (user, amount, fund) => {
   const userWagerAmount = user.investments[fund.id] / 100
-  const userPortion = userWagerAmount * 100 / fund.amountWagered
-  const userReturnAmount = amount / 100
+  const userPortion = Math.abs(userWagerAmount) * 100 / (userWagerAmount > 0 ? fund.amountWagered : fund.fadeAmountWagered)
+  const userReturnAmount = Math.abs(amount) / 100
   const userReturnPct = (
     (userReturnAmount - userWagerAmount) *
     100 /
@@ -225,7 +226,7 @@ const sendUserReturnEmail = async (user, amount, fund) => {
     games = await Promise.all(gamePromises)
     games.forEach(async game => {
       const bets = await db.getGameBets(game.id)
-      game.bets = bets.filter(bet => bet.fundId === fund.id)
+      game.bets = bets.filter(bet => bet.fundId === fund.id && (userWagerAmount < 0 === bet.fade))
       game.bets.forEach(bet => {
         const userBetResult = (
           (bet.returned - bet.wagered) *
@@ -383,8 +384,8 @@ const sendNewUserEmailToRaymour = ({ firstName, lastName, email }) => {
 
 const sendUserWageredOnFundEmail = async (user, amount, fund) => {
   const managerUser = await db.getUserWithManagerId(fund.managerId)
-  const formattedAmount = currencyFormatter.format(amount / 100)
-  const text = `${user.name} contributed ${formattedAmount} to ${fund.name}`
+  const formattedAmount = currencyFormatter.format(Math.abs(amount) / 100)
+  const text = amount > 0 ? `${user.name} contributed ${formattedAmount} to ${fund.name}` : `${user.name} faded ${fund.name} by ${formattedAmount}`
   const mailOptions = {
     from: sender,
     to: managerUser.email,

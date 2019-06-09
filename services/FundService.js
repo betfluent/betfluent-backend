@@ -22,9 +22,7 @@ const closeFund = fundId => {
       if (fund) {
         if (fund.status !== 'OPEN') return // only OPEN funds may be closed
         if (fund.open) fund.open = false
-        if (fund.playerCount > 0) {
-          fund.status = 'PENDING'
-        } else fund.status = 'RETURNED'
+        fund.status = 'PENDING'
       }
       return fund
     })
@@ -35,7 +33,8 @@ const closeFund = fundId => {
           bets.forEach(bet => {
             if (!bet.wagered) {
               const pctOfFund = bet.pctOfFund ? bet.pctOfFund : 0
-              bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
+              if (bet.fade) bet.wagered = Math.floor(fund.fadeAmountWagered * pctOfFund / 100)
+              else bet.wagered = Math.floor(fund.amountWagered * pctOfFund / 100)
               betService.saveBet(bet)
             }
           })

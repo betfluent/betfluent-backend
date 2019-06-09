@@ -45,7 +45,7 @@ module.exports = class Bet {
     if (selectionId) this.selectionId = selectionId;
     this.status = status;
     this.type = type;
-    if (wagered) this.wagered = wagered;
+    this.wagered = wagered || 0;
     this.fade = fade;
   }
 
@@ -58,6 +58,63 @@ module.exports = class Bet {
       toWn = this.wagered * 100 / Math.abs(this.returning);
     } else toWn = this.wagered * this.returning / 100;
     return Math.floor(toWn) + this.wagered;
+  }
+
+  /**
+   * @param {Object} game the game that the bet outcome depends on. Not necessary if the bet is returned.
+   * @return {number} 1 for wins, 0 for push, and -1 for loss.
+   */
+  gameResult(game) {
+    if (typeof game === "undefined") return undefined;
+
+    const awayScore = game.awayTeamScore || 0;
+    const homeScore = game.homeTeamScore || 0;
+    const spread = homeScore - awayScore;
+
+    if (this.type === "OVER_UNDER") {
+      if (awayScore + homeScore === this.points) {
+        return 0;
+      } else if (this.overUnder.toLowerCase() === "over") {
+        if (awayScore + homeScore > this.points) {
+          return 1;
+        }
+        return -1;
+      } else if (awayScore + homeScore < this.points) {
+        return 1;
+      }
+      return -1;
+    }
+    if (this.type === "MONEYLINE") {
+      if (this.selection.indexOf(game.awayTeamName) !== -1) {
+        if (spread < 0) {
+          return 1;
+        } else if (spread > 0) {
+          return -1;
+        }
+        return 0;
+      } else if (spread > 0) {
+        return 1;
+      } else if (spread < 0) {
+        return -1;
+      }
+      return 0;
+    }
+    if (this.type === "SPREAD") {
+      if (this.selection.indexOf(game.awayTeamName) !== -1) {
+        if (spread < this.points) {
+          return 1;
+        } else if (spread > this.points) {
+          return -1;
+        }
+        return 0;
+      } else if (spread > -this.points) {
+        return 1;
+      } else if (spread < -this.points) {
+        return -1;
+      }
+      return 0;
+    }
+    return undefined; // Prop bet results cannot be calculated with available info
   }
 
   /**

@@ -14,7 +14,7 @@ const returnFund = (fundId) => db.returnFund(fundId)
       const emailSuccesses = async () => {
         const successUsers = await Promise.all(Object.keys(successes).map(userId => db.getUser(userId)))
         const emailUserAmounts = successUsers
-          .filter(user => user.preferences.receiveReturnEmail)
+          .filter(user => !!user && user.preferences.receiveReturnEmail)
           .reduce((map, user) => {
             map[user.id] = {
               user,
@@ -102,7 +102,10 @@ const placeFundBet = async (bet) => {
     const game = await db.getGame(bet.gameLeague, bet.gameId)
     const users = await db.getUsersInFund(bet.fundId)
     const usersToEmail = users.filter(user => user.preferences.receiveBetEmail)
-    mailer.sendFundBetPlacedEmail(usersToEmail, fund, game, bet)
+    const longUsers = usersToEmail.filter(u => u.investments[fund.id] > 0)
+    const fadeUsers = usersToEmail.filter(u => u.investments[fund.id] < 0)
+    if (bet.fade) mailer.sendFundBetPlacedEmail(fadeUsers, fund, game, bet)
+    else mailer.sendFundBetPlacedEmail(longUsers, fund, game, bet)
   }
 
   if (fundBetTransaction.committed) {

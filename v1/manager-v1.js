@@ -98,7 +98,7 @@ router.post('/result', async function (req, res) {
           ? fund.returnTimeMillis
           : Number.MAX_SAFE_INTEGER
 
-        const autoReturn = (Date.now() >= returnTime || (fund.balance === 0 && fund.counterBalance === 0)) && !fund.hasPendingBets()
+        // const autoReturn = (Date.now() >= returnTime || (fund.balance === 0 && fund.counterBalance === 0)) && !fund.hasPendingBets()
         const trainingAutoReturn = fund.isTraining && Object.keys(fund.results).length === 10
 
         if (autoReturn || trainingAutoReturn) {
