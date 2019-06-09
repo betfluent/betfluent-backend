@@ -8,7 +8,7 @@ module.exports = class Fund {
       closingTime,
       counterBalance,
       createdTimeMillis,
-      fadeAmountWagered,
+      fadeAmountWagered = 0,
       fadePlayerCount,
       fadeResults,
       fadeReturnCount,
