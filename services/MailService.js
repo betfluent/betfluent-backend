@@ -200,8 +200,8 @@ const sendFundReturnedEmail = function(userAmounts, fund) {
 
 const sendUserReturnEmail = async (user, amount, fund) => {
   const userWagerAmount = user.investments[fund.id] / 100
-  const userPortion = userWagerAmount * 100 / fund.amountWagered
-  const userReturnAmount = amount / 100
+  const userPortion = Math.abs(userWagerAmount) * 100 / (userWagerAmount > 0 ? fund.amountWagered : fund.fadeAmountWagered)
+  const userReturnAmount = Math.abs(amount) / 100
   const userReturnPct = (
     (userReturnAmount - userWagerAmount) *
     100 /
@@ -226,7 +226,7 @@ const sendUserReturnEmail = async (user, amount, fund) => {
     games = await Promise.all(gamePromises)
     games.forEach(async game => {
       const bets = await db.getGameBets(game.id)
-      game.bets = bets.filter(bet => bet.fundId === fund.id)
+      game.bets = bets.filter(bet => bet.fundId === fund.id && (userWagerAmount < 0 === bet.fade))
       game.bets.forEach(bet => {
         const userBetResult = (
           (bet.returned - bet.wagered) *
