@@ -139,8 +139,9 @@ async function sendManagerBetPlacedEmail(fund, game, bet) {
 }
 
 function sendUserBetPlacedEmail(user, fund, game, bet) {
+  const userBet = user.investments[fund.id]
   const gameTime = moment(game.scheduledTimeUnix).format('ddd, MMM Do @ h:mm a')
-  const userPortion = user.investments[fund.id] / fund.amountWagered
+  const userPortion = Math.abs(userBet) / (userBet > 0 ? fund.amountWagered : fund.fadeAmountWagered)
   const atStake = Math.floor(userPortion * bet.wagered)
   const formattedAtStake = currencyFormatter.format(atStake / 100)
   const betType = bet.type.replace('_', '/')
