@@ -104,8 +104,8 @@ const placeFundBet = async (bet) => {
     const usersToEmail = users.filter(user => user.preferences.receiveBetEmail)
     const longUsers = usersToEmail.filter(u => u.investments[fund.id] > 0)
     const fadeUsers = usersToEmail.filter(u => u.investments[fund.id] < 0)
-    if (bet.fade) mailer.sendFundBetPlacedEmail(longUsers, fund, game, bet)
-    else mailer.sendFundBetPlacedEmail(fadeUsers, fund, game, bet)
+    if (bet.fade) mailer.sendFundBetPlacedEmail(fadeUsers, fund, game, bet)
+    else mailer.sendFundBetPlacedEmail(longUsers, fund, game, bet)
   }
 
   if (fundBetTransaction.committed) {

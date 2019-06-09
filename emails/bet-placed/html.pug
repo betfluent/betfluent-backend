@@ -6,8 +6,11 @@ html(lang="en")
     div.emailBody
       img(class="logo" src="https://firebasestorage.googleapis.com/v0/b/betfluent-prod.appspot.com/o/emails%2Fbetfluent-logo.png?alt=media&token=fb7da543-1369-4f8d-b870-738565d89205" width="200" alt="betFluent")
       div.fundInfo
-        b #{fundName}
+        b  #{fundName} 
         span has placed a bet.
+
+      div.fundInfo
+        b.red #{bet.fade ? 'You have chosen to BET AGAINST ' + fundName : ''}
 
       div.teamNames #{game.awayTeam.name} vs #{game.homeTeam.name}
       div.broadcast

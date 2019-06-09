@@ -1250,6 +1250,39 @@ function transactUserReturn(userId, fundId, amount, fade) {
     })
 }
 
+async function rewardManager(fund) {
+  const managerFee = fund.balance + fund.counterBalance;
+
+  const managerUserSnap = await db
+    .ref('users')
+    .orderByChild('managerId')
+    .equalTo(fund.managerId)
+    .once('value')
+
+  const managerUser = managerUserSnap.val()
+
+  const managerUserId = Object.keys(managerUser)[0]
+
+  const compensateManager = await db
+    .ref('users')
+    .child(managerUserId)
+    .transaction(user => {
+      if (user) user.balance += managerFee
+      return user
+    })
+
+  if (compensateManager.committed) {
+    const interaction = {
+      time: firebase.database.ServerValue.TIMESTAMP,
+      amount: managerFee,
+      type: 'Influencer Earnings',
+      userId: managerUserId,
+      public: false
+    }
+    saveInteraction(interaction)
+  }
+}
+
 function updateFundAfterUserReturn(
   userId,
   fundId,
@@ -1278,6 +1311,7 @@ function updateFundAfterUserReturn(
             fund.fadeReturnCount = fund.fadeReturnCount ? fund.fadeReturnCount + 1 : 1
           }
           if (fund.returnCount === fund.playerCount && fund.fadeReturnCount === fund.fadePlayerCount) {
+            rewardManager(fund)
             fund.returnTimeMillis = firebase.database.ServerValue.TIMESTAMP
             fund.status = 'RETURNED'
             delete fund.isReturning
@@ -1371,43 +1405,6 @@ const returnFund = async fundId => {
     const userReturn = transactUserReturn(user.id, fundId, amount, user.investments[fundId] < 0)
     returns.push(userReturn)
   })
-
-  const managerFee = fund.balance + fund.counterBalance;
-
-  const managerUserSnap = await db
-    .ref('users')
-    .orderByChild('managerId')
-    .equalTo(fund.managerId)
-    .once('value')
-
-  const managerUser = managerUserSnap.val()
-
-  const managerUserId = Object.keys(managerUser)[0]
-
-  const compensateManager = await db
-    .ref('users')
-    .child(managerUserId)
-    .transaction(user => {
-      if (user) user.balance += managerFee
-      return user
-    })
-
-  if (!compensateManager.committed) {
-    return {
-      status: 'fail',
-      message: 'Manager NOT compensated'
-    }
-  }
-
-  const interaction = {
-    time: firebase.database.ServerValue.TIMESTAMP,
-    amount: managerFee,
-    type: 'Influencer Earnings',
-    userId: managerUserId,
-    public: false
-  }
-
-  saveInteraction(interaction)
 
   const successes = {}
   const failures = {}
