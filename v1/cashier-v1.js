@@ -43,8 +43,8 @@ router.post('/wager', async function (req, res) {
             message: 'User does not have available balance to cover the wager'
           }
           res.send(response)
-          mailer.sendUserWageredOnFundEmail(user, wager.amount, fund)
         } else {
+          mailer.sendUserWageredOnFundEmail(user, wager.amount, fund)
           res.send(results)
         }
       })

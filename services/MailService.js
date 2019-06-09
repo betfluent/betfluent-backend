@@ -384,8 +384,8 @@ const sendNewUserEmailToRaymour = ({ firstName, lastName, email }) => {
 
 const sendUserWageredOnFundEmail = async (user, amount, fund) => {
   const managerUser = await db.getUserWithManagerId(fund.managerId)
-  const formattedAmount = currencyFormatter.format(amount / 100)
-  const text = `${user.name} contributed ${formattedAmount} to ${fund.name}`
+  const formattedAmount = currencyFormatter.format(Math.abs(amount) / 100)
+  const text = amount > 0 ? `${user.name} contributed ${formattedAmount} to ${fund.name}` : `${user.name} faded ${fund.name} by ${formattedAmount}`
   const mailOptions = {
     from: sender,
     to: managerUser.email,
