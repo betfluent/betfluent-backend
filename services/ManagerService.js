@@ -14,7 +14,7 @@ const returnFund = (fundId) => db.returnFund(fundId)
       const emailSuccesses = async () => {
         const successUsers = await Promise.all(Object.keys(successes).map(userId => db.getUser(userId)))
         const emailUserAmounts = successUsers
-          .filter(user => user.preferences.receiveReturnEmail)
+          .filter(user => !!user && user.preferences.receiveReturnEmail)
           .reduce((map, user) => {
             map[user.id] = {
               user,
