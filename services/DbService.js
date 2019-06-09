@@ -1503,15 +1503,16 @@ const transactFundBet = bet => {
           wagerId: bet.id,
           wagerSummary: bet.summary(),
           gameId: bet.gameId,
-          gameLeague: bet.gameLeague
+          gameLeague: bet.gameLeague,
+          fade: bet.fade
         }
         bet.liveTimeMillis = firebase.database.ServerValue.TIMESTAMP
         bet.status = 'LIVE'
         return saveBet(bet).then(() => {
           if (!bet.fade) {
-            saveInteraction(interaction)
             updateUserBetStatsAfterPlacing(fund.managerId, bet)
           }
+          saveInteraction(interaction)
           db
             .ref(bet.gameLeague.toLowerCase())
             .child('live')
@@ -1643,10 +1644,11 @@ const transactFundBetResult = async betId => {
     wagerSummary: bet.summary(),
     wagerAmount: bet.wagered,
     gameId: bet.gameId,
-    gameLeague: bet.gameLeague
+    gameLeague: bet.gameLeague,
+    fade: bet.fade
   }
 
-  if (!bet.fade) saveInteraction(interaction)
+  saveInteraction(interaction)
 
   return saveBet(bet).then(() => {
     console.log(`\n---------- ${interactionType}:`, bet)
