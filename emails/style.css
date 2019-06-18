@@ -4,7 +4,7 @@ body {
 
 a {
   text-decoration: none;
-  color: #1A661A;
+  color: #7017D0;
   font-size: 12px;
   line-height: 14px;
 }
@@ -147,7 +147,7 @@ h1, h2, h3 {
 
 .couldProfit .floatRight {
   font-size: 16px;
-  color: #1A661A;
+  color: #7017D0;
 }
 
 .toWin div:first-child, .btb div:first-child {
@@ -194,7 +194,7 @@ h1, h2, h3 {
 }
 
 .welcomeHeader {
-  background-color: #1A661A;
+  background-color: #7017D0;
   color: #fff;
   padding: 24px 0;
   margin-bottom: 24px;
@@ -217,7 +217,7 @@ h1, h2, h3 {
   line-height: 36px;
   margin: 24px auto 36px;
   padding: 0;
-  background-color: #1A661A;
+  background-color: #7017D0;
   color: #fff;
   border: none;
   border-radius: 2px;
