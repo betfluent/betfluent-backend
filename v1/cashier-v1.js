@@ -105,17 +105,17 @@ router.post('/withdraw', async function (req, res) {
   }
 
   if (pin !== user.pin) {
-    response = {
+    return ({
       status: 'fail',
       message: 'PIN submitted does not match PIN on file.'
-    }
+    })
   }
 
   if (amount > user.balance && amount > 2000) {
-    response = {
+    return ({
       status: 'fail',
       message: 'Cannot withdraw more than available balance and less than $20. Please email support@betfluent.com'
-    }
+    })
   }
 
   const getTransaction = status => ({
@@ -127,48 +127,10 @@ router.post('/withdraw', async function (req, res) {
     status
   })
 
-  let checkId
-  const onFailure = () => {
-    lob.cancelCheck(checkId)
-    db.deleteLobCheck(checkId)
-    db.saveTransaction(getTransaction('FAIL'))
-  }
-
-  if (response.status === 'success') {
-    lob.createCheck(user.name, address, amount / 100)
-      .then(check => {
-        const { id, check_number: number } = check
-        checkId = id
-        db.saveLobCheck({
-          id,
-          amount,
-          number,
-          userId: user.id
-        })
-        db.saveTransaction(getTransaction('COMPLETE'))
-        return db.withdrawFromUserBalance(user.id, amount)
-      })
-      .then(result => {
-        if (!result.committed) {
-          onFailure()
-          response = {
-            status: 'fail',
-            message: 'Cannot withdraw more than available balance.'
-          }
-        }
-        mailer.sendPendingWithdrawalEmail(user.email, amount)
-        res.send(response)
-      })
-      .catch(err => {
-        res.send({
-          status: 'error',
-          message: err.message
-        })
-        if (checkId) onFailure()
-      })
-  } else {
-    res.send(response)
-  }
+  db.saveTransaction(getTransaction('COMPLETE'))
+  mailer.sendPendingWithdrawalEmail(user.email, amount)
+  db.withdrawFromUserBalance(user.id, amount)
+  res.send(response)
 })
 
 module.exports = router
